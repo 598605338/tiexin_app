@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	namespace：必须与对应的接口全类名一致
+	id:必须与对应接口的某个对应的方法名一致
+	
+ -->
+<mapper namespace="com.linjia.web.dao.ActivityKaiTuanUsersMapper">
+	<!-- 缓存 -->  
+   <!--  <cache eviction="LRU" type="com.linjia.core.feature.cache.MybatisRedisCache" />  -->
+    
+  <resultMap id="ActivityUResultMap" type="com.linjia.web.query.ActivityKaiTuanUsersQuery" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="userId" property="userId" jdbcType="VARCHAR" />
+    <result column="kt_id" property="kt_id" jdbcType="INTEGER" />
+    <result column="create_time" property="create_time" jdbcType="DATE" />
+    <result column="deleted" property="deleted" jdbcType="BIT" />
+    <result column="orderId" property="orderId" jdbcType="BIGINT" />
+  </resultMap>
+  
+	<insert id="insertOneKaiTuanUser" parameterType="ActivityKaiTuanUsers">
+		insert into b_activity_kaituan_users(userId,kt_id,create_time,orderId) values(#{userId},#{kt_id},sysdate(),#{orderId})
+	</insert>
+	
+	<update id="updateOneKaiTuanUser" parameterType="ActivityKaiTuanUsers">
+		update b_activity_kaituan_users
+		 <set>
+	      <if test="userId != null">userId=#{userId},</if>
+	      <if test="kt_id != null">kt_id=#{kt_id},</if>
+	      <if test="dedeleted!= null">deleted=#{deleted}</if>
+	    </set>
+  		where 1=1 and deleted=0
+    	<if test="id != null">
+          and id=#{id}
+        </if>
+        <if test="userId != null">
+          and userId=#{userId}
+        </if>
+        <if test="kt_id != null">
+          and kt_id=#{kt_id}
+        </if>
+        <if test="orderId != null">
+          and orderId=#{orderId}
+        </if>
+	</update>
+	
+	<!-- 查询用户开团数据 -->
+	<select id="selectKaiTuanUser" parameterType="com.linjia.web.query.ActivityKaiTuanUsersQuery" resultType="ActivityKaiTuanUsers">
+		select id,userId,kt_id,deleted from b_activity_kaituan_users
+		where 1=1 and deleted=0 
+		<if test="id != null">
+          and id=#{id}
+        </if>
+        <if test="userId != null">
+          and userId=#{userId}
+        </if>
+        <if test="kt_id != null">
+          and kt_id=#{kt_id}
+        </if>
+         <if test="orderId != null">
+          and orderId=#{orderId}
+        </if>
+        order by create_time desc
+        LIMIT #{startIndex},#{pageSize}
+	</select>
+	
+	<!-- 查询开团所有用户头像 -->
+	<select id="selectOneKaiTuanUserPhoto" parameterType="map" resultType="String">
+		select 
+		CONCAT('${@com.linjia.constants.Application@SERVER_BASE_PATH}','/source/photo/cust_head/',cm.head_pic) AS head_pic
+		from b_activity_kaituan_users bku,cust_master cm,b_pintuan_order bpo
+		where 1=1 and bku.deleted=0 and bpo.pay_status=1 and bku.userId=cm.user_id and bku.orderId=bpo.order_id 
+		<if test="kt_id != null">
+         	and bku.kt_id=#{kt_id}
+        </if>
+        <if test="userId != null">
+          	and cm.user_id =#{userId}
+        </if>
+        <if test="id != null">
+          	and bku.id=#{id}
+        </if>
+         <if test="orderId != null">
+         	 and bku.orderId=#{orderId}
+        </if>
+	</select>
+	
+		<!-- 查询参团用户id -->
+	<select id="selectTeamUsers" parameterType="int" resultType="String">
+		select userId from b_activity_kaituan_users baku,b_pintuan_order bpo
+		where 1=1 and baku.deleted=0 
+        and baku.kt_id=#{kt_id} and bpo.pay_status=1 and baku.orderId=bpo.order_id
+	</select>
+</mapper>

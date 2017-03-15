@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	namespace：必须与对应的接口全类名一致
+	id:必须与对应接口的某个对应的方法名一致
+	
+ -->
+<mapper namespace="com.linjia.web.dao.JgPushDeviceMappe">
+	<!-- 缓存 -->  
+   <!--  <cache eviction="LRU" type="com.linjia.core.feature.cache.MybatisRedisCache" />  -->
+
+	<insert id="insertJgPush" parameterType="com.linjia.web.model.JgPushCustomer" useGeneratedKeys="true" keyProperty="id">
+		insert into b_jgpush_device_info(mall_code,registration_id,os_type,shop_type,updtime) 
+		values(#{mall_code},#{registration_id},#{os_type},#{shop_type},SYSDATE())
+	</insert>
+	
+	<delete id="deleteJgPush" parameterType="map">
+		delete from b_jgpush_device_info where 1=1
+		<if test="registration_id !=null and registration_id !='' ">
+			and registration_id=#{registration_id} 
+		</if>
+		<if test="mall_code !=null and mall_code !='' ">
+			and mall_code=#{mall_code} 
+		</if>
+	</delete>
+	
+	<!-- 更新信息 -->
+	<update id="updateJgPush" parameterType="com.linjia.web.model.JgPushCustomer">
+		update b_jgpush_device_info
+		<set>
+		<if test="registration_id !=null">registration_id=#{registration_id},</if>
+		<if test="os_type !=null">os_type=#{os_type},</if>
+		<if test="shop_type !=null"> shop_type=#{shop_type},</if>
+		updtime=SYSDATE()
+		</set>
+		where deleted=0 and mall_code=#{mall_code}
+	</update>
+	
+	<!-- 根据shopId订单Id查询订单详情-->
+	<select id="selectJgPush" parameterType="Map" resultType="com.linjia.web.model.JgPushCustomer">
+		select id,mall_code,registration_id,os_type,shop_type,updtime
+		from  b_jgpush_device_info where mall_code=#{mall_code} 
+		<if test="registration_id !=null and registration_id !='' ">
+			and registration_id=#{registration_id}
+		</if>
+	</select>
+	
+	<!-- 根据店铺id集合，查询设备id集合 -->
+	<select id="selectJgPushIdList" parameterType="java.lang.String" resultType="java.lang.String">
+		select DISTINCT registration_id
+		from  b_jgpush_device_info where mall_code in (#{mall_codes}) 
+	</select>
+	
+	<!-- 根据邻家订单id,查询店铺id -->
+	<select id="selectLjShopIdbyOrderid" parameterType="java.lang.String" resultType="java.lang.String">
+		select bg.mall_code from b_order_group bg where bg.id=#{order_id}
+	</select>
+	
+	<select id="selectMtShopIdbyOrderid" parameterType="java.lang.String" resultType="java.lang.String">
+		select bsi.mall_code from b_meituan_order bmo,b_shop_info bsi  where bmo.order_id=#{order_id} and bsi.meituanShopId=bmo.app_poi_code
+	</select>
+	
+	<select id="selectBdShopIdbyOrderid" parameterType="java.lang.String" resultType="java.lang.String">
+		select  bsi.mall_code from b_baidu_order bdo,b_shop_info bsi where bdo.order_id=#{order_id} and bsi.baiduShopId=bdo.shop_id
+	</select>
+	
+	<select id="selectJdShopIdbyOrderid" parameterType="java.lang.Long" resultType="java.lang.String">
+		SELECT produceStationNoIsv AS mall_code FROM `b_jddj_order` where orderId = #{order_id}
+	</select>
+	
+	<select id="selectElemeShopIdbyOrderid" parameterType="java.lang.String" resultType="java.lang.String">
+		SELECT shopId AS mall_code FROM b_eleme_order where id = #{order_id}
+	</select>
+	
+</mapper>

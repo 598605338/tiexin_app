@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.linjia.web.dao.FavouriteProductMapper" >
+  <resultMap id="BaseResultMap" type="com.linjia.web.model.FavouriteProduct" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="VARCHAR" />
+    <result column="product_id" property="productId" jdbcType="INTEGER" />
+    <result column="p_code" property="pCode" jdbcType="VARCHAR" />
+    <result column="cre_date" property="creDate" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, user_id, product_id, p_code, cre_date
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from b_favourite_product
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from b_favourite_product
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByProIDAndUserId" parameterType="map" >
+    delete from b_favourite_product
+    where user_id = #{userId,jdbcType=VARCHAR} AND product_id in
+    <foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+     	#{item,jdbcType=INTEGER} 
+    </foreach>
+  </delete>
+  <insert id="insert" parameterType="com.linjia.web.model.FavouriteProduct" >
+    insert into b_favourite_product (id, user_id, product_id, 
+      p_code, cre_date)
+    values (#{id,jdbcType=INTEGER}, #{userId,jdbcType=VARCHAR}, #{productId,jdbcType=INTEGER}, 
+      #{pCode,jdbcType=VARCHAR}, #{creDate,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.linjia.web.model.FavouriteProduct" >
+    insert into b_favourite_product
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="productId != null" >
+        product_id,
+      </if>
+      <if test="pCode != null" >
+        p_code,
+      </if>
+      <if test="creDate != null" >
+        cre_date,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="userId != null" >
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="productId != null" >
+        #{productId,jdbcType=INTEGER},
+      </if>
+      <if test="pCode != null" >
+        #{pCode,jdbcType=VARCHAR},
+      </if>
+      <if test="creDate != null" >
+        #{creDate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.linjia.web.model.FavouriteProduct" resultType="java.lang.Integer" >
+    select count(*) from b_favourite_product
+  </select>
+  <update id="updateByPrimaryKey" parameterType="com.linjia.web.model.FavouriteProduct" >
+    update b_favourite_product
+    set user_id = #{userId,jdbcType=VARCHAR},
+      product_id = #{productId,jdbcType=INTEGER},
+      p_code = #{pCode,jdbcType=VARCHAR},
+      cre_date = #{creDate,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

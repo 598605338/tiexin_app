@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.linjia.web.dao.NewProductRecommendMapper" >
+  <resultMap id="BaseResultMap" type="com.linjia.web.model.NewProductRecommend" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="product_id" property="productId" jdbcType="INTEGER" />
+    <result column="p_code" property="pCode" jdbcType="VARCHAR" />
+    <result column="p_name" property="pName" jdbcType="VARCHAR" />
+    <result column="p_send_type" jdbcType="INTEGER" property="pSendType" />
+    <result column="sale_price" property="salePrice" jdbcType="DECIMAL" />
+    <result column="market_price" property="marketPrice" jdbcType="DECIMAL" />
+    <result column="image_path" property="imagePath" jdbcType="VARCHAR" />
+    <result column="safe_quantity" property="safeQuantity" jdbcType="INTEGER" />
+    <result column="online" property="online" jdbcType="BIT" />
+    <result column="sort_index" property="sortIndex" jdbcType="INTEGER" />
+    <result column="deleted" property="deleted" jdbcType="BIT" />
+    <result column="cre_date" property="creDate" jdbcType="TIMESTAMP" />
+    <result column="update_date" property="updateDate" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+<!-- 引用JAVA中定义的常量  -->
+<!-- r.czmc='${@com.ytoxl.module.datahub.kernel.dataobject.EcSystemLog@THE_AUDIT}' -->  
+    bnpr.id, bnpr.product_id, bnpr.p_code, bnpr.p_name, bnpr.p_send_type, bmps.sale_price, bnpr.market_price, bnpr.safe_quantity, CONCAT('${@com.linjia.constants.Application@SERVER_BASE_PATH}',bnpr.image_path) AS image_path, bnpr.online, bnpr.sort_index, 
+    bnpr.deleted, bnpr.cre_date, bnpr.update_date
+  </sql>
+  
+  <select id="selectNewProductList" resultMap="BaseResultMap"  parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from b_new_product_recommend bnpr
+    LEFT JOIN b_mall_product_store bmps ON bnpr.p_code = bmps.p_code  AND bmps.mall_code = #{mallCode,jdbcType=VARCHAR}
+    where 
+    bnpr.online = 1 and bnpr.deleted =0
+    order by bnpr.sort_index desc
+    limit 6
+  </select>
+</mapper>

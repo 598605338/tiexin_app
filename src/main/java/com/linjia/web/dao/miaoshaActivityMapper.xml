@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	namespace：必须与对应的接口全类名一致
+	id:必须与对应接口的某个对应的方法名一致
+	
+ -->
+<mapper namespace="com.linjia.web.dao.MiaoshaActivityMapper">
+	<!-- 缓存 -->  
+   <!--  <cache eviction="LRU" type="com.linjia.core.feature.cache.MybatisRedisCache" />  -->
+   
+   <resultMap id="MiaoshaActivityBaseResultMap" type="com.linjia.web.model.MiaoshaActivityBase">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="banner_path" jdbcType="VARCHAR" property="bannerPath" />
+    <result column="panic_buying_start_time" jdbcType="TIMESTAMP" property="panicBuyingStartTime" />
+    <result column="panic_buying_end_time" jdbcType="TIMESTAMP" property="panicBuyingEndTime" />
+    <result column="qm_type" jdbcType="INTEGER" property="qmType" />
+    <result column="check_sell_type" jdbcType="INTEGER" property="checkSellType" />
+    <result column="unstart_activity_tip" jdbcType="VARCHAR" property="unstartActivityTip" />
+    <result column="ended_activity_tip" jdbcType="VARCHAR" property="endedActivityTip" />
+    <result column="sell_out_tip" jdbcType="VARCHAR" property="sellOutTip" />
+    <result column="description" jdbcType="VARCHAR" property="description" />
+  </resultMap>
+  
+   <sql id="miaoshaActivityBaseColumns">
+    	id,name,banner_path,panic_buying_start_time,panic_buying_end_time,qm_type,check_sell_type,
+    	unstart_activity_tip,ended_activity_tip,sell_out_tip,description
+    </sql>
+    
+	<select id="selectOne" parameterType="java.util.Date" resultMap="MiaoshaActivityBaseResultMap" >
+		SELECT 
+		<include refid="miaoshaActivityBaseColumns" /> 
+		FROM `b_activity_shangou_base` 
+		WHERE <![CDATA[panic_buying_start_time >= #{panicBuyingStartTime,jdbcType=TIMESTAMP} AND panic_buying_end_time <= #{panicBuyingEndTime,jdbcType=TIMESTAMP}]]> AND deleted =0  LIMIT 1
+	</select>
+	
+	
+</mapper>

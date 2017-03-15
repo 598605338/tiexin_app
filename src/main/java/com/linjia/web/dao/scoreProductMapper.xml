@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.linjia.web.dao.ScoreProductMapper" >
+  <resultMap id="BaseResultMap" type="com.linjia.web.model.ScoreProduct" >
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="card_coupon_id" jdbcType="BIGINT" property="cardCouponId" />
+    <result column="type" jdbcType="INTEGER" property="type" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="price" jdbcType="DECIMAL" property="price" />
+    <result column="score" jdbcType="INTEGER" property="score" />
+    <result column="image_path" jdbcType="VARCHAR" property="imagePath" />
+    <result column="detail_path" jdbcType="VARCHAR" property="detailPath" />
+    <result column="exchange_type" jdbcType="INTEGER" property="exchangeType" />
+    <result column="quantity" jdbcType="INTEGER" property="quantity" />
+    <result column="exchanged_num" jdbcType="INTEGER" property="exchangedNum" />
+    <result column="limit_quantity" jdbcType="INTEGER" property="limitQuantity" />
+    <result column="sort_index" jdbcType="INTEGER" property="sortIndex" />
+    <result column="cre_date" jdbcType="TIMESTAMP" property="creDate" />
+    <result column="deleted" jdbcType="BIT" property="deleted" />
+    <result column="card_type" jdbcType="INTEGER" property="cardType" />
+    <result column="content" jdbcType="VARCHAR" property="content" />
+    <result column="thirdId" jdbcType="BIGINT" property="thirdId" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, card_coupon_id, type, name, price, score, CONCAT('${@com.linjia.constants.Application@SERVER_BASE_PATH}',image_path) AS image_path, CONCAT('${@com.linjia.constants.Application@SERVER_BASE_PATH}',detail_path) AS detail_path, 
+    exchange_type, quantity, exchanged_num, limit_quantity, sort_index, cre_date, deleted
+  </sql>
+  
+  <select id="selectList" resultMap="BaseResultMap" parameterType="com.linjia.web.query.ScoreProductQuery" >
+    select
+    <include refid="Base_Column_List" />
+    from b_score_product
+    where use_status = 0 AND deleted = 0
+    order by sort_index desc
+    limit #{startIndex,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+  </select>
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from b_score_product
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  
+  <!-- 查询积分商品相关信息 -->
+  <select id="selectInfoByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    SELECT 
+    bsp.id,bsp.card_coupon_id,bsp.quantity,bsp.exchanged_num,bsp.limit_quantity,bsp.name,bsp.type,bsp.price,bsp.score,cc.card_type ,cc.description AS content
+    FROM `b_score_product` bsp INNER JOIN card_coupon cc ON bsp.card_coupon_id = cc.card_id 
+    WHERE bsp.use_status = 0 AND bsp.deleted =0 AND bsp.id = #{id,jdbcType=INTEGER}
+  </select>
+  
+  <!-- 我能兑换的 -->
+  <select id="selectCanExchangeList" resultMap="BaseResultMap" parameterType="com.linjia.web.query.ScoreProductQuery" >
+    select
+    <include refid="Base_Column_List" />
+    from b_score_product
+    where  deleted =0 AND use_status = 0
+    <![CDATA[ AND score <= #{score,jdbcType=INTEGER} ]]>
+    order by sort_index desc
+    limit #{startIndex,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+  </select>
+  
+  <!-- 根据积分商品id查询第三方卡券的链接和券码 -->
+  <select id="selectThirdContentByScoreProductId" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    SELECT cct.content ,cct.id AS thirdId
+    FROM card_coupon cc INNER JOIN `b_score_product` bsp ON bsp.card_coupon_id = cc.card_id INNER JOIN card_coupon_third cct ON cc.card_id = cct.card_coupon_id 
+	WHERE bsp.use_status = 0 AND bsp.deleted =0 AND bsp.quantity > 0 AND cct.`status` = 0 AND bsp.id = #{id,jdbcType=INTEGER} 
+	limit 1
+  </select>
+  
+   <!-- 更新积分商品剩余数量 -->
+  <update id="updateQtyById" parameterType="java.lang.Long" >
+    update b_score_product
+    set quantity = quantity - 1,exchanged_num = exchanged_num + 1
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  
+   <!-- 更新券码记录的兑换时间和状态 -->
+  <update id="updateThirdStatusById" parameterType="java.lang.Long" >
+    UPDATE card_coupon_third SET status = 1,exchange_time=now()
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

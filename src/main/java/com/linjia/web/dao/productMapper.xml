@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.linjia.web.dao.ProductMapper">
+  <resultMap id="BaseResultMap" type="com.linjia.web.model.Product">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="p_code" jdbcType="VARCHAR" property="pCode" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="description" jdbcType="VARCHAR" property="description" />
+    <result column="image_path" jdbcType="VARCHAR" property="imagePath" />
+    <result column="detail_path" jdbcType="VARCHAR" property="detailPath" />
+    <result column="p_type" jdbcType="TINYINT" property="pType" />
+    <result column="p_send_type" jdbcType="INTEGER" property="pSendType" />
+    <result column="stock_type" jdbcType="TINYINT" property="stockType" />
+    <result column="supplier" jdbcType="VARCHAR" property="supplier" />
+    <result column="brand_id" jdbcType="INTEGER" property="brandId" />
+    <result column="brand_name" jdbcType="VARCHAR" property="brandName" />
+    <result column="p_comment" jdbcType="VARCHAR" property="pComment" />
+    <result column="large_catagory_id" jdbcType="INTEGER" property="largeCatagoryId" />
+    <result column="middle_catagory_id" jdbcType="INTEGER" property="middleCatagoryId" />
+    <result column="small_catagory_id" jdbcType="INTEGER" property="smallCatagoryId" />
+    <result column="keywords" jdbcType="VARCHAR" property="keywords" />
+    <result column="available" jdbcType="TINYINT" property="available" />
+    <result column="sale_price" jdbcType="DECIMAL" property="salePrice" />
+    <result column="market_price" jdbcType="DECIMAL" property="marketPrice" />
+    <result column="spec_id" jdbcType="INTEGER" property="specId" />
+    <result column="unit_id" jdbcType="INTEGER" property="unitId" />
+    <result column="unit_name" jdbcType="VARCHAR" property="unitName" />
+    <result column="p_label" jdbcType="VARCHAR" property="pLabel" />
+    <result column="qrcode_big" jdbcType="VARCHAR" property="qrcodeBig" />
+    <result column="qrcode_middle" jdbcType="VARCHAR" property="qrcodeMiddle" />
+    <result column="qrcode_small" jdbcType="VARCHAR" property="qrcodeSmall" />
+    <result column="cre_date" jdbcType="TIMESTAMP" property="creDate" />
+    <result column="update_date" jdbcType="TIMESTAMP" property="updateDate" />
+    <result column="deleted" jdbcType="BIT" property="deleted" />
+    <result column="quantity" property="quantity" jdbcType="INTEGER" />
+    <result column="safe_quantity" property="safeQuantity" jdbcType="INTEGER" />
+    <result column="shelf_life" property="shelfLife" jdbcType="VARCHAR" />
+    <result column="p_sale_num" jdbcType="INTEGER" property="saleNum" />
+    <result column="favouriteProductId" jdbcType="VARCHAR" property="favouriteProductId" />
+    <result column="discount" jdbcType="DOUBLE" property="discount" />
+    <result column="promotion_label" jdbcType="VARCHAR" property="promotionLabel" />
+  </resultMap>
+  
+  <resultMap id="DetailResultMap" type="com.linjia.web.model.ProductDetail">
+    <id column="product_id" jdbcType="INTEGER" property="productId" />
+    <result column="p_code" jdbcType="VARCHAR" property="pCode" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="description" jdbcType="VARCHAR" property="description" />
+    <result column="detail_path" jdbcType="VARCHAR" property="detailPath" />
+    <result column="p_send_type" jdbcType="INTEGER" property="pSendType" />
+    <result column="sale_price" jdbcType="DECIMAL" property="salePrice" />
+    <result column="market_price" jdbcType="DECIMAL" property="marketPrice" />
+    <result column="pb_price" jdbcType="DECIMAL" property="pbPrice" />
+    <result column="spec_id" jdbcType="INTEGER" property="specId" />
+    <result column="safe_quantity" jdbcType="INTEGER" property="safeQuantity" />
+    <result column="brand_id" jdbcType="INTEGER" property="brandId" />
+    <result column="brand_name" jdbcType="VARCHAR" property="brandName" />
+    <result column="unit_id" jdbcType="INTEGER" property="unitId" />
+    <result column="unit_name" jdbcType="VARCHAR" property="unitName" />
+    <result column="shelf_life" property="shelfLife" jdbcType="VARCHAR" />
+    <result column="panic_buying_end_time" jdbcType="TIMESTAMP" property="panicBuyingEndTime" />
+    <result column="p_sale_num" jdbcType="INTEGER" property="saleNum" />
+    <result column="isFavourite" jdbcType="INTEGER" property="isFavourite" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, p_code, name, description, CONCAT('${@com.linjia.constants.Application@SERVER_BASE_PATH}',image_path) AS image_path, detail_path, p_type, p_send_type, stock_type, supplier, 
+    brand_id, brand_name, p_comment, large_catagory_id, middle_catagory_id, small_catagory_id, 
+    keywords, available, sale_price, market_price, spec_id, p_label, qrcode_big, qrcode_middle, 
+    qrcode_small, cre_date, update_date, deleted, quantity
+  </sql>
+  
+  <sql id="Base_Column_List_1">
+    bp.id, bp.p_code, bp.name, bp.description, CONCAT('${@com.linjia.constants.Application@SERVER_BASE_PATH}',bp.image_path) AS image_path, bp.detail_path, bp.p_type, bp.p_send_type, bp.stock_type, bp.supplier, 
+    bp.brand_id, bp.brand_name, bp.p_comment, bp.large_catagory_id, bp.middle_catagory_id, bp.small_catagory_id,bp.p_label, 
+    IF(baip.discount IS NOT NULL AND baip.discount !=0,ROUND(baip.discount*bp.market_price,2),bmps.sale_price) AS sale_price, bp.market_price, bmps.safe_quantity ,baip.discount,baip.promotion_label
+    <![CDATA[,IFNULL(IF (bmpsq.quantity < 1 OR bmpsq.quantity IS NULL,0,p_sale_num.saleNum),0) AS saleNum]]>
+  </sql>
+  
+  <sql id="Base_Column_List_2">
+    bp.id, bp.p_code, bp.name, bp.description, CONCAT('${@com.linjia.constants.Application@SERVER_BASE_PATH}',bp.image_path) AS image_path, bp.detail_path, bp.p_type, bp.p_send_type, bp.stock_type, bp.supplier, 
+    bp.brand_id, bp.brand_name, bp.p_comment, bp.large_catagory_id, bp.middle_catagory_id, bp.small_catagory_id,bp.p_label, 
+    IF(baip.discount IS NOT NULL AND baip.discount !=0,ROUND(baip.discount*bp.market_price,2),bmps.sale_price) AS sale_price, bp.market_price, bmps.safe_quantity ,baip.discount,baip.promotion_label
+  </sql>
+  <select id="selectCatagoryProductList" parameterType="com.linjia.web.query.ProductQuery" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List_1" />
+    from b_product bp inner join b_mall_product_store bmps on bp.p_code = bmps.p_code
+    <!-- 查询商品活动(部分商品)折扣价 -->
+    LEFT JOIN (SELECT bap.product_id , bap.p_code, CASE activity_type WHEN 2 THEN bai.discount ELSE 0 END AS discount, bai.promotion_label FROM b_activity_product bap INNER JOIN b_activity_info bai ON bap.activity_id = bai.activity_id WHERE bai.status = 1 AND bai.selector_goods =1  
+    <![CDATA[AND bai.start_time <= now() AND bai.end_time >= now() ]]>
+	AND (bai.mall_codes IS NULL OR FIND_IN_SET(#{mallCode,jdbcType=VARCHAR},mall_codes)) GROUP BY bap.product_id ORDER BY bai.discount ) baip ON bp.p_code = baip.p_code
+	
+	<!--查询月销量  -->
+    LEFT JOIN ( SELECT count(bogp.id) AS saleNum, bogp.product_id FROM b_order_group_product bogp
+    INNER JOIN b_order_group bog ON bogp.group_id = bog.id AND DATE_FORMAT(bog.cre_date, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m') 
+    GROUP BY bogp.product_id
+    ) p_sale_num ON p_sale_num.product_id = bp.id
+    LEFT JOIN b_mall_product_send_qty bmpsq ON bmpsq.p_code = bp.p_code AND bmpsq.mall_code = #{mallCode,jdbcType=VARCHAR}
+    WHERE 
+    bp.available =1 
+    AND bp.deleted =0
+    AND bmps.online = 1
+    AND bmps.mall_code = #{mallCode,jdbcType=VARCHAR}
+    <if test="largeCatagoryId != null">
+    AND bp.large_catagory_id = #{largeCatagoryId}
+    </if> 
+    <if test="middleCatagoryId != null">
+    AND bp.middle_catagory_id = #{middleCatagoryId} 
+    </if>
+    GROUP BY bp.p_code
+    ORDER BY saleNum desc,bmpsq.quantity DESC,bp.id desc
+    LIMIT #{startIndex},#{pageSize}
+  </select>
+  
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from b_product
+    WHERE 
+    available =1 
+    AND deleted =0
+    AND id = #{id,jdbcType=INTEGER}
+  </select>
+  
+  <select id="selectByPCode" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from b_product
+    WHERE 
+    available =1 
+    AND deleted =0
+    AND p_code = #{pCode,jdbcType=VARCHAR}
+  </select>
+  
+  <!-- 根据商品id查询商品的详情 -->
+  <select id="selectDetailByPrimaryKey" parameterType="map" resultMap="DetailResultMap">
+    select 
+    bp.id AS product_id,bp.p_code,bp.name,bp.description,bp.p_send_type,bp.unit_id,bpu.name AS unit_name,bp.brand_id,bp.brand_name,bp.shelf_life,bp.market_price,
+    IF(baip.discount IS NOT NULL AND baip.discount !=0,baip.discount*bp.market_price,bmps.sale_price) AS sale_price,bmps.safe_quantity,basp.pb_price,basp.panic_buying_end_time,IFNULL(p_sale_num.saleNum,0) AS saleNum,
+    CONCAT('${@com.linjia.constants.Application@SERVER_BASE_PATH}',bp.detail_path) AS detail_path,baip.discount
+    <if test="userId != null">
+    ,(SELECT count(bfp.id) FROM b_favourite_product bfp WHERE bfp.user_id = #{userId,jdbcType=VARCHAR} AND bfp.product_id = bp.id) AS isFavourite
+    </if>
+    from b_product bp
+    LEFT JOIN b_mall_product_store bmps ON bmps.p_code = bp.p_code AND bmps.deleted =0 AND bmps.online =1 AND bmps.mall_code = #{mallCode,jdbcType=VARCHAR}
+    LEFT JOIN b_product_unit bpu ON bp.unit_id = bpu.id
+    LEFT JOIN b_activity_shangou_product basp ON bp.id = basp.product_id AND basp.deleted =0
+    <![CDATA[AND basp.panic_buying_start_time <= NOW() AND basp.panic_buying_end_time > NOW() AND basp.quantity > 0 ]]>
+    <!--查询月销量  -->
+    LEFT JOIN ( SELECT count(bogp.id) AS saleNum, bogp.product_id FROM b_order_group_product bogp
+    INNER JOIN b_order_group bog ON bogp.group_id = bog.id AND DATE_FORMAT(bog.cre_date, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m') 
+    GROUP BY bogp.product_id
+    ) p_sale_num ON p_sale_num.product_id = bp.id
+    <!-- 查询商品活动(部分商品)折扣价 -->
+    LEFT JOIN (SELECT bap.product_id , bap.p_code, bai.discount FROM b_activity_product bap INNER JOIN b_activity_info bai ON bap.activity_id = bai.activity_id WHERE bai.status = 1 AND bai.selector_goods =1  AND activity_type =2
+    <![CDATA[AND bai.start_time <= now() AND bai.end_time >= now() ]]>
+	AND (bai.mall_codes IS NULL OR FIND_IN_SET(#{mallCode,jdbcType=VARCHAR},mall_codes)) GROUP BY bap.product_id ORDER BY bai.discount ) baip ON bp.p_code = baip.p_code
+    WHERE 
+    bp.available =1 
+    AND bp.deleted =0
+    AND bp.id = #{id,jdbcType=INTEGER}
+  </select>
+  
+  <!-- 根据商品id查询预约购买商品的库存量 -->
+  <select id="selectQuantityByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    quantity
+    from b_product
+    WHERE 
+    available =1 
+    AND deleted =0
+    AND id = #{id,jdbcType=INTEGER}
+  </select>
+  
+  <!-- 根据关键词搜索商品 -->
+  <select id="selectProductByKeyword" parameterType="com.linjia.web.query.SearchQuery" resultMap="BaseResultMap">
+    select DISTINCT
+    <include refid="Base_Column_List_1" />
+    from b_product bp inner join b_mall_product_store bmps on bp.p_code = bmps.p_code
+    
+    <!--查询月销量  -->
+    LEFT JOIN ( SELECT count(bogp.id) AS saleNum, bogp.product_id FROM b_order_group_product bogp
+    INNER JOIN b_order_group bog ON bogp.group_id = bog.id AND DATE_FORMAT(bog.cre_date, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m') 
+    GROUP BY bogp.product_id
+    ) p_sale_num ON p_sale_num.product_id = bp.id
+    
+    <!-- 查询商品活动(部分商品)折扣价 -->
+    LEFT JOIN (SELECT bap.product_id , bap.p_code, CASE activity_type WHEN 2 THEN bai.discount ELSE 0 END AS discount, bai.promotion_label FROM b_activity_product bap INNER JOIN b_activity_info bai ON bap.activity_id = bai.activity_id WHERE bai.status = 1 AND bai.selector_goods =1 
+    <![CDATA[AND bai.start_time <= now() AND bai.end_time >= now() ]]>
+	AND (bai.mall_codes IS NULL OR FIND_IN_SET(#{mallCode,jdbcType=VARCHAR},mall_codes)) GROUP BY bap.product_id ORDER BY bai.discount ) baip ON bp.p_code = baip.p_code
+	LEFT JOIN b_mall_product_send_qty bmpsq ON bmpsq.p_code = bp.p_code AND bmpsq.mall_code = #{mallCode,jdbcType=VARCHAR}
+    WHERE 
+    bp.available =1 
+    AND bp.deleted =0
+    AND bmps.online = 1
+    AND bmps.mall_code = #{mallCode,jdbcType=VARCHAR}
+    AND bp.name like #{keyword,jdbcType=VARCHAR}
+    ORDER BY saleNum desc,bmpsq.quantity DESC,bp.id desc
+    LIMIT #{startIndex},#{pageSize}
+  </select>
+  
+  <!-- 对预约商品进行减库存操作 -->
+  <update id="updateQuantityById" parameterType="map" >
+    update b_product
+    set quantity = quantity - #{buyQty,jdbcType=INTEGER}
+    where id = #{productId,jdbcType=INTEGER}
+  </update>
+  
+  <!-- 查询商品关注的列表 -->
+  <select id="selectFavouriteProductList" parameterType="com.linjia.web.query.FavouriteProductQuery" resultMap="BaseResultMap">
+    select 
+    DISTINCT
+    <include refid="Base_Column_List_2" />,bfp.id AS favouriteProductId
+    from b_product bp inner join b_mall_product_store bmps on bp.p_code = bmps.p_code 
+    inner join b_favourite_product bfp on bp.id = bfp.product_id
+    <!-- 查询商品活动(部分商品)折扣价 -->
+    LEFT JOIN (SELECT bap.product_id , bap.p_code, CASE activity_type WHEN 2 THEN bai.discount ELSE 0 END AS discount, bai.promotion_label FROM b_activity_product bap INNER JOIN b_activity_info bai ON bap.activity_id = bai.activity_id WHERE bai.status = 1 AND bai.selector_goods =1 
+    <![CDATA[AND bai.start_time <= now() AND bai.end_time >= now() ]]>
+	AND (bai.mall_codes IS NULL OR FIND_IN_SET(#{mallCode,jdbcType=VARCHAR},mall_codes)) GROUP BY bap.product_id ORDER BY bai.discount ) baip ON bp.p_code = baip.p_code
+    WHERE 
+    bp.available =1 
+    AND bp.deleted =0
+    AND bmps.online = 1
+    AND bmps.mall_code = #{mallCode,jdbcType=VARCHAR}
+    AND bfp.user_id = #{userId,jdbcType=VARCHAR}
+    ORDER BY bfp.cre_date desc
+    LIMIT #{startIndex},#{pageSize}
+  </select>
+</mapper>

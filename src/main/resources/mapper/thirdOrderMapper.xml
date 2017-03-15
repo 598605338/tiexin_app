@@ -1,0 +1,1345 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace：必须与对应的接口全类名一致 id:必须与对应接口的某个对应的方法名一致 -->
+<mapper namespace="com.linjia.web.dao.ThirdOrderMapper">
+	<!-- 缓存 -->
+	<!-- <cache eviction="LRU" type="com.linjia.core.feature.cache.MybatisRedisCache" 
+		/> -->
+	<resultMap id="MtResultMap" type="com.linjia.web.thirdService.meituan.model.MtReOrder">
+		<result column="order_id" property="id" jdbcType="VARCHAR" />
+		<result column="wm_order_id_view" property="wm_order_id_view" jdbcType="VARCHAR" />
+		<result column="app_poi_code" property="mall_code" jdbcType="VARCHAR" />
+		<result column="wm_poi_name" property="mall_name" jdbcType="VARCHAR" />
+		<result column="wm_poi_address" property="wm_poi_address" jdbcType="VARCHAR" />
+		<result column="wm_poi_phone" property="mall_phone" jdbcType="VARCHAR" />
+		<result column="recipient_address" property="receive_address" jdbcType="VARCHAR" />
+		<result column="recipient_phone" property="receive_phone" jdbcType="VARCHAR" />
+		<result column="recipient_name" property="receive_name" jdbcType="VARCHAR" />
+		<result column="shipping_fee" property="shipping_fee" jdbcType="FLOAT" />
+		<result column="total" property="total" jdbcType="FLOAT" />
+		<result column="original_price" property="original_price" jdbcType="FLOAT" />
+		<result column="caution" property="caution" jdbcType="VARCHAR" />
+		<result column="shipper_phone" property="shipper_phone" jdbcType="VARCHAR" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+		<result column="city_id" property="city_id" jdbcType="INTEGER" />
+		<result column="has_invoiced" property="has_invoiced" jdbcType="BIT" />
+		<result column="invoice_title" property="invoice_title" jdbcType="VARCHAR" />
+		<result column="ctime" property="ctime" jdbcType="BIGINT" />
+		<result column="utime" property="utime" jdbcType="BIGINT" />
+		<result column="delivery_time" property="delivery_time" jdbcType="BIT" />
+		<result column="is_third_shipping" property="is_third_shipping" jdbcType="BIT" />
+		<result column="pay_type" property="pay_type" jdbcType="INTEGER" />
+		<result column="latitude" property="latitude" jdbcType="FLOAT" />
+		<result column="longitude" property="longitude" jdbcType="FLOAT" />
+		<result column="day_seq" property="day_seq" jdbcType="VARCHAR" />
+		<result column="detail" property="detail" jdbcType="LONGVARCHAR" />
+		<result column="extras" property="extras" jdbcType="LONGVARCHAR" />
+		<result column="deleted" property="deleted" jdbcType="BIT" />
+	</resultMap>
+
+	<!-- 查询店铺新订单列表 -->
+	<select id="selectOrderlist" parameterType="com.linjia.web.query.ThirdLogisOrderQuery"
+		resultType="com.linjia.web.model.ThirdOrder">
+		select
+			id ,
+			mall_code ,
+			mall_name,
+			receive_name,
+			receive_phone,
+			receive_address,
+			send_type,
+			create_time,
+			send_date,
+			send_hour,
+			pay_type,
+			total_price,
+			send_price,
+			real_price,
+			orderDiscountMoney,
+			packagingMoney,
+			status,
+			recive_time,
+			orderNum,
+			send_logistics_type,
+			orderSource
+		from
+		(select
+			id ,
+			mall_code ,
+			mall_name,
+			receive_name,
+			receive_phone,
+			receive_address,
+			send_type,
+			cre_date create_time,
+			send_date,
+			send_hour,
+			pay_type,
+			total_price,
+			send_price,
+			real_price,
+			preferential_price AS orderDiscountMoney,
+			0 AS packagingMoney,
+			order_group_status status,
+			end_time recive_time,
+			orderNum,
+			send_logistics_type,
+			'1' as orderSource
+			from b_order_group where 1=1 and mall_code =#{mall_code} and pay_status=#{pay_status} 
+			<if test="send_type !=null and send_type !=''">
+				and send_type=#{send_type}
+			</if>
+			<if test="logStatus ==null">
+				and order_group_status=#{status}
+			</if>
+			<if test="logStatus !=null and logStatus !=''">
+				and (order_group_status=#{status} or order_group_status=#{logStatus})
+			</if>
+			and cre_date between date_format(now(), '%Y-%m-%d 00:00:00') and date_format(now(), '%Y-%m-%d 23:59:59')
+		UNION ALL
+		select
+			order_id id,
+			app_poi_code mall_code,
+			wm_poi_name mall_name,
+			recipient_name receive_name,
+			recipient_phone receive_phone,
+			recipient_address receive_address,
+			is_third_shipping send_type,
+			FROM_UNIXTIME(ctime, '%Y-%m-%d %H:%i:%S') create_time,
+			case when delivery_time=0 then SYSDATE()
+				 else  FROM_UNIXTIME(delivery_time) end send_date,
+			0 as send_hour,
+			pay_type, 
+			total real_price,
+			shipping_fee send_price,
+			original_price total_price,
+			0 AS orderDiscountMoney,
+			0 AS packagingMoney,
+			status,
+			recive_time,
+			orderNum,
+			'5' as send_logistics_type,
+			'2' as orderSource
+			FROM b_meituan_order where status=#{mtOrderStatus} and app_poi_code=#{app_poi_code} and pay_status=#{mtPatyStatus}
+			and FROM_UNIXTIME(ctime, '%Y-%m-%d %H:%i:%S') between date_format(now(), '%Y-%m-%d 00:00:00') and date_format(now(), '%Y-%m-%d 23:59:59')
+		UNION ALL
+		select
+			order_id id,
+			shop_id mall_code,
+			shop_name mall_name,
+			user_name receive_name,
+			user_phone receive_phone,
+			user_address receive_address,
+			order_delivery_party send_type,
+			FROM_UNIXTIME(order_create_time, '%Y-%m-%d %H:%i:%S') create_time,
+			case when order_send_time=1 then SYSDATE()
+				 else  FROM_UNIXTIME(order_send_time) end send_date,
+			0 as send_hour,
+			order_pay_type pay_type, 
+			ROUND(order_total_fee/100,2) total_price, 
+			ROUND(order_send_fee/100,2) send_price,
+			ROUND(order_user_fee/100,2) real_price,
+			0 AS orderDiscountMoney,
+			0 AS packagingMoney,
+			status,
+			recive_time,
+			orderNum,
+			'3' as send_logistics_type,
+			'3' as orderSource
+		from b_baidu_order where status=#{bdOrderStatus} and order_pay_status=#{bdPatyStatus} and shop_id=#{shop_id}
+		and FROM_UNIXTIME(order_create_time,'%Y-%m-%d %H:%i:%S') between date_format(now(), '%Y-%m-%d 00:00:00') and date_format(now(), '%Y-%m-%d 23:59:59')
+		UNION ALL
+		SELECT
+		orderId AS id,
+		produceStationNoIsv AS mall_code,
+		produceStationName AS mall_name,
+		buyerFullName AS receive_name,
+		buyerMobile AS receive_phone,
+		buyerFullAddress AS receive_address,
+		send_type,
+		orderStartTime AS
+		create_time,
+		DATE_FORMAT(orderPreStartDeliveryTime,'%Y-%m-%d') AS send_date,
+		date_format(orderPreStartDeliveryTime,'%H:%i') AS send_hour,
+		'4' AS pay_type,
+		ROUND(orderTotalMoney/100,2) AS total_price,
+		ROUND(orderFreightMoney/100,2) AS send_price,
+		ROUND((orderBuyerPayableMoney-packagingMoney)/100,2) AS real_price,
+		ROUND(orderDiscountMoney/100,2) AS orderDiscountMoney,
+		ROUND(packagingMoney/100,2) AS packagingMoney,
+		orderStatus AS status,
+		deliveryConfirmTime AS recive_time,
+		orderNum,
+		'6' AS send_logistics_type,
+		'4' AS orderSource
+		FROM
+		`b_jddj_order`
+		where
+		produceStationNoIsv =#{produceStationNoIsv}
+		and
+		orderStatus=#{jdOrderStatus}
+		and orderStartTime between date_format(now(), '%Y-%m-%d 00:00:00') and date_format(now(),'%Y-%m-%d 23:59:59')
+		UNION ALL
+		select  id ,
+			shopId mall_code ,
+			shopName mall_name,
+			consignee receive_name,
+			phoneList receive_phone,
+			deliveryPoiAddress receive_address,
+			'0' as send_type,
+			createdAt create_time,
+			deliverTime send_date,
+			0 as send_hour,
+			'1' as 	pay_type,
+			totalPrice total_price,
+			deliverFee send_price,
+			income real_price,
+			0 AS orderDiscountMoney,
+			0 AS packagingMoney,
+			order_status status,
+			recive_time,
+			orderNum,
+			'4' as send_logistics_type,
+			'5' as orderSource
+			from b_eleme_order where order_status=#{elemeOrderStatus} and shopId=#{shop_id}
+			and createdAt between date_format(now(),'%Y-%m-%d 00:00:00') and date_format(now(), '%Y-%m-%d 23:59:59')
+		)tab
+		order by tab.create_time desc
+        LIMIT #{startIndex},#{pageSize}
+	</select>
+	
+	<!-- 查询店铺提醒订单列表 -->
+	<select id="selectWarnOrderlist" parameterType="com.linjia.web.query.ThirdLogisOrderQuery"
+		resultType="com.linjia.web.model.ThirdOrder">
+		select 
+			id ,
+			mall_code ,
+			mall_name,
+			receive_name,
+			receive_phone,
+			receive_address,
+			send_type,
+			create_time,
+			send_date,
+			pay_type,
+			total_price,
+			send_price,
+			real_price,
+			orderDiscountMoney,
+			packagingMoney,
+			status,
+			recive_time,
+			orderNum,
+			urgeNum,
+			orderSource
+		from 
+		(select
+			id ,
+			mall_code ,
+			mall_name,
+			receive_name,
+			receive_phone,
+			receive_address,
+			send_type,
+			cre_date create_time,
+			send_date,
+			pay_type,
+			total_price,
+			send_price,
+			real_price,
+			preferential_price AS orderDiscountMoney,
+			0 AS packagingMoney,
+			order_group_status status,
+			end_time recive_time,
+			orderNum,
+			urgeNum,
+			'1' as orderSource
+			from b_order_group where  mall_code =#{mall_code}
+			<if test="status !=null">and order_group_status =#{status}</if>
+			<if test="orderStatusList !=null">
+				and order_group_status in  
+		        <foreach item="item" index="index" collection="orderStatusList" open="("  
+		            separator="," close=")">  
+		            #{item}  
+		        </foreach>  
+			</if>
+			<if test="logStatus !=null and logStatus !='' ">and order_group_status !=#{logStatus}</if>
+			<if test="pay_status !=null">and pay_status=#{pay_status}</if>
+			<if test="send_type !=null">and send_type=#{send_type}</if>
+			<if test="receive_phone !=null">and receive_phone like CONCAT(CONCAT('%',#{receive_phone}),'%')</if>
+			<if test="order_id !=null">and id like CONCAT(CONCAT('%',#{order_id}),'%')</if>
+			<if test="querySearceDate ==null or querySearceDate =='' ">
+				and cre_date between date_format(now(), '%Y-%m-%d 00:00:00') and date_format(now(), '%Y-%m-%d 23:59:59')
+			</if>
+			<if test="querySearceDate !=null and querySearceDate !='' ">
+				and cre_date between date_sub(curdate(),interval 30 day) and date_add(now(),interval 30 day)
+			</if>
+		UNION ALL
+		select
+			order_id id,
+			app_poi_code mall_code,
+			wm_poi_name mall_name,
+			recipient_name receive_name,
+			recipient_phone receive_phone,
+			recipient_address receive_address,
+			is_third_shipping send_type,
+			FROM_UNIXTIME(ctime, '%Y-%m-%d %H:%i:%S') create_time,
+			case when delivery_time=0 then SYSDATE()
+				 else  FROM_UNIXTIME(delivery_time) end send_date,
+			pay_type, 
+			total real_price,
+			shipping_fee send_price,
+			original_price total_price,
+			0 AS orderDiscountMoney,
+			0 AS packagingMoney,
+			status,
+			recive_time,
+			orderNum,
+			urgeNum,
+			'2' as orderSource
+			FROM b_meituan_order where app_poi_code=#{app_poi_code} 
+			<if test="mtOrderStatus !=null">and status =#{mtOrderStatus}</if>
+			<if test="mtOrderStatusList !=null">
+				and status in  
+		        <foreach item="item" index="index" collection="mtOrderStatusList" open="("  separator="," close=")">  
+		            #{item}  
+		        </foreach>  
+			</if>
+			<if test="mtPatyStatus !=null">and pay_status=#{mtPatyStatus}</if>
+			<if test="send_type !=null">and is_third_shipping=#{send_type}</if>
+			<if test="receive_phone !=null">and recipient_phone like CONCAT(CONCAT('%',#{receive_phone}),'%')</if>
+			<if test="order_id !=null">and order_id like CONCAT(CONCAT('%',#{order_id}),'%')</if>
+			and FROM_UNIXTIME(ctime, '%Y-%m-%d %H:%i:%S') between date_format(now(), '%Y-%m-%d 00:00:00') and date_format(now(), '%Y-%m-%d 23:59:59')
+		UNION ALL
+		select
+			order_id id,
+			shop_id mall_code,
+			shop_name mall_name,
+			user_name receive_name,
+			user_phone receive_phone,
+			user_address receive_address,
+			order_delivery_party send_type,
+			FROM_UNIXTIME(order_create_time, '%Y-%m-%d %H:%i:%S') create_time,
+			case when order_send_time=1 then SYSDATE()
+				 else  FROM_UNIXTIME(order_send_time) end send_date,
+			order_pay_type pay_type, 
+			ROUND(order_total_fee/100,2) total_price, 
+			ROUND(order_send_fee/100,2) send_price,
+			ROUND(order_user_fee/100,2) real_price,
+			0 AS orderDiscountMoney,
+			0 AS packagingMoney,
+			status,
+			recive_time,
+			orderNum,
+			urgeNum,
+			'3' as orderSource
+		from b_baidu_order where shop_id=#{shop_id}
+		<if test="bdOrderStatus !=null">and status =#{bdOrderStatus}</if>
+		<if test="bdOrderStatusList !=null">
+				and status in  
+		        <foreach item="item" index="index" collection="bdOrderStatusList" open="("  
+		            separator="," close=")">  
+		            #{item}  
+		        </foreach>  
+		
+		</if>
+		<if test="bdPatyStatus !=null">and order_pay_status=#{bdPatyStatus}</if>
+		<if test="send_type !=null">and order_delivery_party=#{send_type}</if>
+		<if test="receive_phone !=null">and user_phone like CONCAT(CONCAT('%',#{receive_phone}),'%')</if>
+		<if test="order_id !=null">and order_id like CONCAT(CONCAT('%',#{order_id}),'%')</if>
+		and FROM_UNIXTIME(order_create_time,'%Y-%m-%d %H:%i:%S') between date_format(now(), '%Y-%m-%d 00:00:00') and date_format(now(), '%Y-%m-%d 23:59:59')
+		<!-- 京东到家 -->
+		UNION ALL
+		select
+		orderId id,
+		produceStationNoIsv mall_code,
+		produceStationName mall_name,
+		buyerFullName receive_name,
+		buyerMobile receive_phone,
+		buyerFullAddress receive_address,
+		send_type,
+		DATE_FORMAT(orderStartTime, '%Y-%m-%d %H:%i:%S') create_time,
+		DATE_FORMAT(orderPreStartDeliveryTime,'%Y-%m-%d') send_date,
+		'4' AS pay_type,
+		ROUND(orderTotalMoney/100,2) total_price,
+		ROUND(orderFreightMoney/100,2) send_price,
+		ROUND((orderBuyerPayableMoney-packagingMoney)/100,2) real_price,
+		ROUND(orderDiscountMoney/100,2) AS orderDiscountMoney,
+		ROUND(packagingMoney/100,2) AS packagingMoney,
+		orderStatus status,
+		deliveryConfirmTime recive_time,
+		orderNum,
+		0 AS urgeNum,
+		'4' as orderSource
+		from b_jddj_order where
+		produceStationNoIsv=#{produceStationNoIsv}
+		<if test="jdOrderStatus !=null">and orderStatus =#{jdOrderStatus}</if>
+		<if test="jdOrderStatusList !=null">
+			and orderStatus in
+			<foreach item="item" index="index" collection="jdOrderStatusList"
+				open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="receive_phone !=null">and buyerMobile like
+			CONCAT(CONCAT('%',#{receive_phone}),'%')</if>
+		<if test="order_id !=null">and orderId like CONCAT(CONCAT('%',#{order_id}),'%')</if>
+		and orderStartTime between date_format(now(), '%Y-%m-%d 00:00:00') and date_format(now(),'%Y-%m-%d 23:59:59')
+		UNION ALL
+		select  id ,
+			shopId mall_code ,
+			shopName mall_name,
+			consignee receive_name,
+			phoneList receive_phone,
+			deliveryPoiAddress receive_address,
+			'0' as send_type,
+			createdAt create_time,
+			deliverTime send_date,
+			'1' as 	pay_type,
+			totalPrice total_price,
+			deliverFee send_price,
+			income real_price,
+			0 AS orderDiscountMoney,
+			0 AS packagingMoney,
+			order_status status,
+			recive_time,
+			orderNum,
+			urgeNum,
+			'5' as orderSource
+			from b_eleme_order 
+			where shopId=#{shop_id}
+			<if test="elemeOrderStatus !=null">and order_status=#{elemeOrderStatus}</if>
+			<if test="elemeOrderStatusList !=null">
+				and order_status in  
+		        <foreach item="item" index="index" collection="elemeOrderStatusList" open="("  
+		            separator="," close=")">  
+		            #{item}  
+		        </foreach>  
+		</if>
+		<if test="receive_phone !=null">and phoneList like CONCAT(CONCAT('%',#{receive_phone}),'%')</if>
+		<if test="order_id !=null">and id like CONCAT(CONCAT('%',#{order_id}),'%')</if>
+		and createdAt between date_format(now(),'%Y-%m-%d 00:00:00') and date_format(now(), '%Y-%m-%d 23:59:59')
+		)tab
+		where 1=1 
+		<if test="urgeNum !=null and urgeNum !='' and urgeNum != 0 ">and urgeNum>0</if>
+		order by tab.create_time desc
+        LIMIT #{startIndex},#{pageSize}
+	</select>
+	
+	<!-- 查询邻家预约订单和自配送订单,已完成，未完成，已取消 -->
+	<select id="selectLinJOrderlist" parameterType="com.linjia.web.query.ThirdLogisOrderQuery"
+		resultType="com.linjia.web.model.ThirdOrder">
+		select
+			id ,
+			mall_code ,
+			mall_name,
+			receive_name,
+			receive_phone,
+			receive_address,
+			send_type,
+			cre_date create_time,
+			send_date,
+			pay_type,
+			total_price,
+			send_price,
+			real_price,
+			preferential_price AS orderDiscountMoney,
+			0 AS packagingMoney,
+			order_group_status status,
+			end_time recive_time,
+			send_hour,
+			send_logistics_type,
+			orderNum,
+			urgeNum,
+			'1' as orderSource
+			from b_order_group 
+			where  mall_code =#{mall_code}
+			<if test="status !=null">and order_group_status =#{status}</if>
+			<if test="orderStatusList !=null">
+				and order_group_status in  
+		        <foreach item="item" index="index" collection="orderStatusList" open="("  
+		            separator="," close=")">  
+		            #{item}  
+		        </foreach>  
+			</if>
+			<if test="send_type !=null">and send_type=#{send_type}</if>
+			<if test="pay_status !=null">and pay_status=#{pay_status}</if>
+			<if test="order_send_type !=null">and order_send_type=#{order_send_type}</if>
+			<if test="send_logistics_type !=null">and send_logistics_type=#{send_logistics_type}</if>
+			<if test="sumSend_date !=null">AND CONCAT(date_format(send_date,'%Y-%m-%d'),' ',send_hour) BETWEEN DATE_SUB(CURDATE(),INTERVAL 7 DAY) and date_add(CURDATE(),INTERVAL 15 Day)</if>
+			<if test="cre_date !=null">
+			and DATE_FORMAT(cre_date,'%Y-%m-%d %H:%i:%S') between date_format(now(), '%Y-%m-%d 00:00:00') and date_format(now(), '%Y-%m-%d 23:59:59')</if>
+			<if test="send_date !=null">
+			and DATE_FORMAT(send_date,'%Y-%m-%d %H:%i:%S') between date_format(now(), '%Y-%m-%d 00:00:00') and date_format(now(), '%Y-%m-%d 23:59:59')</if>
+			<if test="orderPx ==null">
+					order by cre_date desc
+			</if>
+			<if test="orderPx !=null">
+					order by send_date,send_hour asc
+			</if>
+        LIMIT #{startIndex},#{pageSize}
+	</select>
+	
+	<!-- 查询百度已完成，未完成，已取消 -->
+	<select id="selectBdOrderlist" parameterType="com.linjia.web.query.ThirdLogisOrderQuery"
+		resultType="com.linjia.web.model.ThirdOrder">
+		select
+			order_id id,
+			shop_id mall_code,
+			shop_name mall_name,
+			user_name receive_name,
+			user_phone receive_phone,
+			user_address receive_address,
+			order_delivery_party send_type,
+			FROM_UNIXTIME(order_create_time, '%Y-%m-%d %H:%i:%S') create_time,
+			case when order_send_time=1 then SYSDATE()
+				 else  FROM_UNIXTIME(order_send_time) end send_date,
+			order_pay_type pay_type, 
+			ROUND(order_total_fee/100,2) total_price, 
+			ROUND(order_send_fee/100,2) send_price,
+			ROUND(order_user_fee/100,2) real_price,
+			0 AS orderDiscountMoney,
+			0 AS packagingMoney,
+			status,
+			recive_time,
+			orderNum,
+			urgeNum,
+			'3' as orderSource
+		from b_baidu_order where shop_id=#{shop_id}
+		<if test="bdOrderStatus !=null">and status =#{bdOrderStatus}</if>
+		<if test="bdOrderStatusList !=null">
+				and status in  
+		        <foreach item="item" index="index" collection="bdOrderStatusList" open="("  
+		            separator="," close=")">  
+		            #{item}  
+		        </foreach>  
+		</if>
+		<if test="bdPatyStatus !=null">and order_pay_status=#{bdPatyStatus}</if>
+		<if test="send_type !=null">and order_delivery_party=#{send_type}</if>
+		and FROM_UNIXTIME(order_create_time,'%Y-%m-%d %H:%i:%S') between date_format(now(), '%Y-%m-%d 00:00:00') and date_format(now(), '%Y-%m-%d 23:59:59')
+		order by order_create_time desc
+        LIMIT #{startIndex},#{pageSize}
+	</select>
+	
+	<!-- 查询京东预约订单和已完成，未完成，已取消 订单-->
+	<select id="selectJdOrderlist" parameterType="com.linjia.web.query.ThirdLogisOrderQuery"
+		resultType="com.linjia.web.model.ThirdOrder">
+		SELECT
+		orderId AS id,
+		produceStationNoIsv AS mall_code,
+		produceStationName AS mall_name,
+		buyerFullName AS receive_name,
+		buyerMobile AS receive_phone,
+		buyerFullAddress AS receive_address,
+		send_type,
+		orderStartTime AS create_time,
+		DATE_FORMAT(orderPreStartDeliveryTime,'%Y-%m-%d') AS send_date,
+		date_format(orderPreStartDeliveryTime,'%H:%i') AS send_hour,
+		'4' AS pay_type,
+		ROUND(orderTotalMoney/100,2) AS total_price,
+		ROUND(orderFreightMoney/100,2) AS send_price,
+		ROUND((orderBuyerPayableMoney-packagingMoney)/100,2) AS real_price,
+		ROUND(orderDiscountMoney/100,2) AS orderDiscountMoney,
+		ROUND(packagingMoney/100,2) AS packagingMoney,
+		orderStatus AS status,
+		deliveryConfirmTime AS recive_time,
+		orderNum,
+		0 AS urgeNum,
+		'6' AS send_logistics_type,
+		'4' AS orderSource
+		FROM
+		`b_jddj_order`
+		where produceStationNoIsv=#{produceStationNoIsv}
+		<if test="jdOrderStatusList !=null">
+			and orderStatus in
+			<foreach item="item" index="index" collection="jdOrderStatusList"
+				open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="jdOrderStatus !=null">and orderStatus=#{jdOrderStatus}</if>
+		
+		<!--如果 deliveryTime ==1则查询预约订单 -->
+		<if test="deliveryTime ==1">
+		    AND deliveryTime != 0
+		</if>
+		and orderStartTime between date_format(now(), '%Y-%m-%d 00:00:00') and date_format(now(),'%Y-%m-%d 23:59:59')
+		<if test="deliveryTime != 1">
+		order by orderStartTime desc
+		</if>
+		<if test="deliveryTime ==1">
+		order by orderPreStartDeliveryTime
+		</if>
+		LIMIT
+		#{startIndex},#{pageSize}
+	</select>
+	
+	<!-- 查询美团完成，失效，，进行中订单列表 -->
+	<select id="selectMtOrderlist" parameterType="com.linjia.web.query.ThirdLogisOrderQuery"
+		resultType="com.linjia.web.model.ThirdOrder">
+		select
+			order_id id,
+			app_poi_code mall_code,
+			wm_poi_name mall_name,
+			recipient_name receive_name,
+			recipient_phone receive_phone,
+			recipient_address receive_address,
+			is_third_shipping send_type,
+			FROM_UNIXTIME(ctime, '%Y-%m-%d %H:%i:%S') create_time,
+			case when delivery_time=0 then SYSDATE()
+				else  FROM_UNIXTIME(delivery_time) end send_date,
+			pay_type, 
+			total real_price,
+			shipping_fee send_price,
+			original_price total_price,
+			0 AS orderDiscountMoney,
+			0 AS packagingMoney,
+			status,
+			recive_time,
+			orderNum,
+			urgeNum,
+			'2' as orderSource
+			FROM b_meituan_order where 1=1 
+			<if test="app_poi_code !=null">and app_poi_code =#{app_poi_code}</if>
+			<if test="mtOrderStatus !=null">and status =#{mtOrderStatus}</if>
+			<if test="mtOrderStatusList !=null">
+				and status in  
+		        <foreach item="item" index="index" collection="mtOrderStatusList" open="("  
+		            separator="," close=")">  
+		            #{item}  
+		        </foreach>
+			</if>
+			<if test="mtPatyStatus !=null">and pay_status=#{mtPatyStatus}</if>
+			<if test="send_type !=null">and is_third_shipping=#{send_type}</if>
+			<if test="temp ==null or temp =='' "> 
+			and FROM_UNIXTIME(ctime, '%Y-%m-%d %H:%i:%S') between date_format(now(), '%Y-%m-%d 00:00:00') and date_format(now(), '%Y-%m-%d 23:59:59')
+			</if>
+			<if test="temp !=null and temp !='' "> 
+				and uhd_order_id is null and FROM_UNIXTIME(ctime, '%Y-%m-%d %H:%i:%S') between date_format('2016-12-20 0:00:00', '%Y-%m-%d %H:%i:%S') and date_format('2017-01-31 23:59:59', '%Y-%m-%d %H:%i:%S')
+			</if>
+		order by ctime desc
+        LIMIT #{startIndex},#{pageSize}
+	</select>
+	
+	<!-- 查询邻家订单详情 -->
+	<select id="selectMyOrder" parameterType="com.linjia.web.query.ThirdLogisOrderQuery"
+		resultType="com.linjia.web.model.ThirdOrder">
+		select
+			id ,
+			mall_code ,
+			mall_name,
+			receive_name,
+			receive_phone,
+			receive_address,
+			send_type,
+			cre_date create_time,
+			send_date,
+			send_hour,
+			pay_type,
+			total_price,
+			send_price,
+			real_price,
+			order_group_status  status,
+			cancelReason,
+			bus_confirm_time recive_time,
+			remark,
+			'1' as orderSource
+			from b_order_group where 1=1
+				<if test="mall_code!=null and mall_code !='' ">
+					and mall_code =#{mall_code}
+				</if>
+				 and id=#{order_id}
+	</select>
+	
+	<!-- 查询百度订单详情 -->
+	<select id="selectBdOrder" parameterType="com.linjia.web.query.ThirdLogisOrderQuery"
+		resultType="com.linjia.web.model.ThirdOrder">
+		select
+			order_id id,
+			shop_id mall_code,
+			shop_name mall_name,
+			user_name receive_name,
+			user_phone receive_phone,
+			user_address receive_address,
+			order_delivery_party send_type,
+			FROM_UNIXTIME(order_create_time, '%Y-%m-%d %H:%i:%S') create_time,
+			case when order_send_time=1 then SYSDATE()
+				 else  FROM_UNIXTIME(order_send_time) end send_date,
+			0 as send_hour,
+			order_pay_type pay_type, 
+			ROUND(order_total_fee/100,2) total_price, 
+			ROUND(order_send_fee/100,2) send_price,
+			ROUND(order_user_fee/100,2) real_price,
+			0 AS orderDiscountMoney,
+			0 AS packagingMoney,
+			status,
+			cancelReason,
+			recive_time,
+			order_remark remark,
+			'3' as orderSource
+		from b_baidu_order where 1=1
+			 <if test="shop_id !=null and shop_id !='' ">
+				and shop_id=#{shop_id} 
+			 </if>
+				and order_id=#{order_id}
+	</select>
+			
+	<!-- 查询京东订单详情 -->
+	<select id="selectJdOrder" parameterType="com.linjia.web.query.ThirdLogisOrderQuery"
+		resultType="com.linjia.web.model.ThirdOrder">
+		SELECT
+		orderId AS id,
+		produceStationNoIsv AS mall_code,
+		produceStationName AS mall_name,
+		buyerFullName AS receive_name,
+		buyerMobile AS receive_phone,
+		buyerFullAddress AS receive_address,
+		send_type,
+		orderStartTime AS create_time,
+		DATE_FORMAT(orderPreStartDeliveryTime,'%Y-%m-%d') AS send_date,
+		DATE_FORMAT(orderPreStartDeliveryTime,'%H:%i') AS send_hour,
+		'4' AS pay_type,
+		ROUND(orderTotalMoney/100,2) AS total_price,
+		ROUND(orderFreightMoney/100,2) AS send_price,
+		ROUND((orderBuyerPayableMoney-packagingMoney)/100,2) AS real_price,
+		ROUND(orderDiscountMoney/100,2) AS orderDiscountMoney,
+		ROUND(packagingMoney/100,2) AS packagingMoney,
+		orderStatus AS status,
+		orderCancelRemark AS cancelReason,
+		deliveryConfirmTime AS recive_time,
+		orderBuyerRemark AS remark,
+		pickMark,
+		applyCancel,
+		deliveryTime,
+		'4' AS orderSource
+		FROM
+		`b_jddj_order`
+		where
+		orderId=#{order_id}
+		<if test="shop_id !=null and shop_id !='' ">
+			and produceStationNoIsv=#{shop_id}
+		</if>
+	</select>
+	
+	<!-- 查询美团订单详情 -->
+	<select id="selectMtOrder" parameterType="com.linjia.web.query.ThirdLogisOrderQuery"
+		resultType="com.linjia.web.model.ThirdOrder">
+		select
+			order_id id,
+			app_poi_code mall_code,
+			wm_poi_name mall_name,
+			recipient_name receive_name,
+			recipient_phone receive_phone,
+			recipient_address receive_address,
+			is_third_shipping send_type,
+			FROM_UNIXTIME(ctime, '%Y-%m-%d %H:%i:%S') create_time,
+			case when delivery_time=0 then SYSDATE()
+				 else  FROM_UNIXTIME(delivery_time) end send_date,
+			0 as send_hour,
+			pay_type, 
+			total real_price,
+			shipping_fee send_price,
+			original_price total_price,
+			0 AS orderDiscountMoney,
+			0 AS packagingMoney,
+			status,
+			cancelReason,
+			recive_time,
+			caution remark,
+			extras,
+			'2' as orderSource
+			FROM b_meituan_order where 1=1
+			<if test="app_poi_code !=null and app_poi_code !='' ">
+				and app_poi_code=#{app_poi_code} 
+			</if>
+			and order_id=#{order_id}
+	</select>
+	
+	<!-- 查询邻家商品详情 -->
+	<select id="selectMyOrderDetail" parameterType="java.lang.Long"
+		resultType="com.linjia.web.model.ThirdOrderProduct">
+		select 
+			bgp.id,
+			bgp.group_id orderId,
+			bgp.p_code pCode,
+			bgp.p_name pName,
+			bgp.quantity,
+			bgp.item_price itemPrice,
+			CONCAT('${@com.linjia.constants.Application@SERVER_BASE_PATH}',bp.image_path) AS imagePath
+ 		from b_order_group_product bgp,b_product bp
+		where bgp.p_code=bp.p_code and bgp.group_id=#{order_id}
+	</select>
+	
+	<!-- 统计方法 -->
+	<!-- 统计邻家订单 -->
+	<select id="selectSumLinjia" parameterType="com.linjia.web.query.SumOrderQuery"
+		resultType="com.linjia.web.model.SumOrder">
+		select
+			DATE_FORMAT(cre_date,'%Y年%m月%d日') create_time,
+			sum(total_price) total_price,
+			count(id) orderNums,
+			'1' as sumtype,
+			'1' as orderSource
+		from b_order_group 
+		where mall_code =#{mall_code}
+			<if test="statusing !=null">and order_group_status =#{statusing}</if>
+			<if test="statusingList !=null">
+				and order_group_status in  
+		        <foreach item="item" index="index" collection="statusingList" open="("  
+		            separator="," close=")">  
+		            #{item}  
+		        </foreach>
+			</if>
+			<if test="pay_status !=null">and pay_status=#{pay_status}</if>
+			and DATE_FORMAT(cre_date,'%Y-%m-%d %H:%i:%S') between date_format(now(), '%Y-%m-%d 00:00:00') and date_format(now(), '%Y-%m-%d 23:59:59')
+			GROUP BY DATE_FORMAT(cre_date,'%Y-%m-%d')
+		UNION ALL
+		SELECT
+			DATE_FORMAT(cre_date,'%Y年%m月%d日') create_time,
+			sum(total_price) total_price,
+			count(id) orderNums,
+			'2' as sumtype,
+			'1' as orderSource
+		from b_order_group 
+		where  mall_code =#{mall_code}
+			<if test="statused !=null">and order_group_status =#{statused}</if>
+			<if test="statusedList !=null">
+				and order_group_status in  
+		        <foreach item="item" index="index" collection="statusedList" open="("  
+		            separator="," close=")">  
+		            #{item}  
+		        </foreach>
+			</if>
+			<if test="pay_status !=null">and pay_status=#{pay_status}</if>
+			and DATE_FORMAT(cre_date,'%Y-%m-%d %H:%i:%S') between date_format(now(), '%Y-%m-%d 00:00:00') and date_format(now(), '%Y-%m-%d 23:59:59')
+			GROUP BY DATE_FORMAT(cre_date,'%Y-%m-%d')
+		union all 
+		SELECT
+			DATE_FORMAT(cre_date,'%Y年%m月%d日') create_time,
+			sum(total_price) total_price,
+			count(id) orderNums,
+			'3' as sumtype,
+			'1' as orderSource
+		from b_order_group 
+		where mall_code =#{mall_code}
+			<if test="statusUn !=null">and order_group_status =#{statusUn}</if>
+			<if test="statusUnList !=null">
+				and order_group_status in  
+		        <foreach item="item" index="index" collection="statusUnList" open="("  
+		            separator="," close=")">  
+		            #{item}  
+		        </foreach>
+			</if>
+			<if test="pay_status !=null">and pay_status=#{pay_status}</if>
+			and DATE_FORMAT(cre_date,'%Y-%m-%d %H:%i:%S') between date_format(now(), '%Y-%m-%d 00:00:00') and date_format(now(), '%Y-%m-%d 23:59:59')
+			GROUP BY DATE_FORMAT(cre_date,'%Y-%m-%d')
+	</select>
+	
+	<!-- 统计美团订单 -->
+	<select id="selectSumMeiTuan" parameterType="com.linjia.web.query.SumOrderQuery"
+		resultType="com.linjia.web.model.SumOrder">
+		SELECT
+			FROM_UNIXTIME(ctime, '%Y年%m月%d日') create_time,
+			sum(total) total_price,
+			count(order_id) orderNums,
+			'1' as sumtype,
+			'2' as orderSource
+		from b_meituan_order 
+		where app_poi_code=#{app_poi_code} 
+			<if test="statusing !=null">and status =#{statusing}</if>
+			<if test="statusingList !=null">
+				and status in  
+		        <foreach item="item" index="index" collection="statusingList" open="("  
+		            separator="," close=")">  
+		            #{item}  
+		        </foreach>
+			</if>
+			<if test="pay_status !=null">and pay_status=#{pay_status}</if>
+			and FROM_UNIXTIME(ctime, '%Y-%m-%d %H:%i:%S') between date_format(now(), '%Y-%m-%d 00:00:00') and date_format(now(), '%Y-%m-%d 23:59:59')
+			GROUP BY DATE_FORMAT(ctime,'%Y-%m-%d')
+		UNION ALL
+		SELECT
+			FROM_UNIXTIME(ctime, '%Y年%m月%d日') create_time,
+			sum(total) total_price,
+			count(order_id) orderNums,
+			'2' as sumtype,
+			'2' as orderSource
+		from b_meituan_order 
+		where app_poi_code=#{app_poi_code} 
+			<if test="statused !=null">and status =#{statused}</if>
+			<if test="statusedList !=null">
+				and status in  
+		        <foreach item="item" index="index" collection="statusedList" open="("  
+		            separator="," close=")">  
+		            #{item}  
+		        </foreach>
+			</if>
+			<if test="pay_status !=null">and pay_status=#{pay_status}</if>
+			and FROM_UNIXTIME(ctime, '%Y-%m-%d %H:%i:%S') between date_format(now(), '%Y-%m-%d 00:00:00') and date_format(now(), '%Y-%m-%d 23:59:59')
+			GROUP BY DATE_FORMAT(ctime,'%Y-%m-%d')
+		UNION ALL
+		SELECT
+			FROM_UNIXTIME(ctime, '%Y年%m月%d日') create_time,
+			sum(total) total_price,
+			count(order_id) orderNums,
+			'3' as sumtype,
+			'2' as orderSource
+		from b_meituan_order 
+		where app_poi_code=#{app_poi_code} 
+			<if test="statusUn !=null">and status =#{statusUn}</if>
+			<if test="statusUnList !=null">
+				and status in  
+		        <foreach item="item" index="index" collection="statusUnList" open="("  
+		            separator="," close=")">  
+		            #{item}  
+		        </foreach>
+			</if>
+			<if test="pay_status !=null">and pay_status=#{pay_status}</if>
+				and FROM_UNIXTIME(ctime, '%Y-%m-%d %H:%i:%S') between date_format(now(), '%Y-%m-%d 00:00:00') and date_format(now(), '%Y-%m-%d 23:59:59')
+			GROUP BY DATE_FORMAT(ctime,'%Y-%m-%d')
+		</select>
+		
+		<!-- 统计百度订单 -->
+		<select id="selectSumBaidu" parameterType="com.linjia.web.query.SumOrderQuery"
+		resultType="com.linjia.web.model.SumOrder">
+		SELECT
+			FROM_UNIXTIME(order_create_time,'%Y年%m月%d日') create_time,
+			ROUND(sum(order_total_fee)/100,2) total_price,
+			count(order_id) orderNums,
+			'1' as sumtype,
+			'3' as orderSource
+		from b_baidu_order 
+		where shop_id=#{shop_id}
+		<if test="statusing !=null">and status =#{statusing}</if>
+		<if test="statusingList !=null">
+			and status in  
+		        <foreach item="item" index="index" collection="statusingList" open="("  
+		            separator="," close=")">  
+		            #{item}  
+		        </foreach>
+		</if>
+		<if test="pay_status !=null">and order_pay_status=#{pay_status}</if>
+			and FROM_UNIXTIME(order_create_time,'%Y-%m-%d %H:%i:%S') between date_format(now(), '%Y-%m-%d 00:00:00') and date_format(now(), '%Y-%m-%d 23:59:59')
+			GROUP BY FROM_UNIXTIME(order_create_time, '%Y-%m-%d')
+		UNION ALL
+		SELECT
+			FROM_UNIXTIME(order_create_time,'%Y年%m月%d日') create_time,
+			ROUND(sum(order_total_fee)/100,2) total_price,
+			count(order_id) orderNums,
+			'2' as sumtype,
+			'3' as orderSource
+		from b_baidu_order 
+		where shop_id=#{shop_id}
+		<if test="statused !=null">and status =#{statused}</if>
+		<if test="statusedList !=null">
+				and status in  
+		        <foreach item="item" index="index" collection="statusedList" open="("  
+		            separator="," close=")">  
+		            #{item}  
+		        </foreach>
+		</if>
+		<if test="pay_status !=null">and order_pay_status=#{pay_status}</if>
+			and FROM_UNIXTIME(order_create_time,'%Y-%m-%d %H:%i:%S') between date_format(now(), '%Y-%m-%d 00:00:00') and date_format(now(), '%Y-%m-%d 23:59:59')
+			GROUP BY FROM_UNIXTIME(order_create_time, '%Y-%m-%d')
+		UNION ALL
+		SELECT
+			FROM_UNIXTIME(order_create_time,'%Y年%m月%d日') create_time,
+			ROUND(sum(order_total_fee)/100,2) total_price,
+			count(order_id) orderNums,
+			'3' as sumtype,
+			'3' as orderSource
+		from b_baidu_order
+		where shop_id=#{shop_id}
+		<if test="statusUn !=null">and status =#{statusUn}</if>
+		<if test="statusUnList !=null">
+			and status in  
+		        <foreach item="item" index="index" collection="statusUnList" open="("  
+		            separator="," close=")">  
+		            #{item}  
+		        </foreach>
+		</if>
+		<if test="pay_status !=null">and order_pay_status=#{pay_status}</if>
+			and FROM_UNIXTIME(order_create_time,'%Y-%m-%d %H:%i:%S') between date_format(now(), '%Y-%m-%d 00:00:00') and date_format(now(), '%Y-%m-%d 23:59:59')
+			GROUP BY FROM_UNIXTIME(order_create_time, '%Y-%m-%d')
+		</select>
+		
+		
+	<!-- 统计京东到家订单 -->
+	<select id="selectSumJingdong" parameterType="com.linjia.web.query.SumOrderQuery"
+		resultType="com.linjia.web.model.SumOrder">
+		select
+			DATE_FORMAT(orderStartTime,'%Y年%m月%d日') create_time,
+			ROUND(sum(orderBuyerPayableMoney - packagingMoney) / 100, 2) total_price,
+			count(orderId) orderNums,
+			'1' as sumtype,
+			'4' as orderSource
+		from b_jddj_order 
+		where produceStationNoIsv =#{produceStationNoIsv}
+			<if test="statusing !=null">and orderStatus =#{statusing}</if>
+			<if test="statusingList !=null">
+				and orderStatus in  
+		        <foreach item="item" index="index" collection="statusingList" open="("  
+		            separator="," close=")">  
+		            #{item}  
+		        </foreach>
+			</if>
+			and orderStartTime between date_format(now(), '%Y-%m-%d 00:00:00') and date_format(now(), '%Y-%m-%d 23:59:59')
+			GROUP BY DATE_FORMAT(orderStartTime,'%Y-%m-%d')
+		UNION ALL
+		SELECT
+			DATE_FORMAT(orderStartTime,'%Y年%m月%d日') create_time,
+			ROUND(sum(orderBuyerPayableMoney - packagingMoney) / 100, 2) total_price,
+			count(orderId) orderNums,
+			'2' as sumtype,
+			'4' as orderSource
+		from b_jddj_order 
+		where  produceStationNoIsv =#{produceStationNoIsv}
+			<if test="statused !=null">and orderStatus =#{statused}</if>
+			<if test="statusedList !=null">
+				and orderStatus in  
+		        <foreach item="item" index="index" collection="statusedList" open="("  
+		            separator="," close=")">  
+		            #{item}  
+		        </foreach>
+			</if>
+			and orderStartTime between date_format(now(), '%Y-%m-%d 00:00:00') and date_format(now(), '%Y-%m-%d 23:59:59')
+			GROUP BY DATE_FORMAT(orderStartTime,'%Y-%m-%d')
+		union all 
+		SELECT
+			DATE_FORMAT(orderStartTime,'%Y年%m月%d日') create_time,
+			ROUND(sum(orderBuyerPayableMoney - packagingMoney) / 100, 2) total_price,
+			count(orderId) orderNums,
+			'3' as sumtype,
+			'4' as orderSource
+		from b_jddj_order 
+		where produceStationNoIsv =#{produceStationNoIsv}
+			<if test="statusUn !=null">and orderStatus =#{statusUn}</if>
+			<if test="statusUnList !=null">
+				and orderStatus in  
+		        <foreach item="item" index="index" collection="statusUnList" open="("  
+		            separator="," close=")">  
+		            #{item}  
+		        </foreach>
+			</if>
+			and orderStartTime between date_format(now(), '%Y-%m-%d 00:00:00') and date_format(now(), '%Y-%m-%d 23:59:59')
+			GROUP BY DATE_FORMAT(orderStartTime,'%Y-%m-%d')
+	</select>
+		
+		<!-- 统计所有订单 -->
+		<select id="selectSumAll" parameterType="com.linjia.web.query.ThirdLogisOrderQuery"
+		resultType="com.linjia.web.model.SumOrder">
+		select tab1.create_time,sum(tab1.orderNums) orderNums from (
+		select 
+			tab.create_time,
+			tab.orderNums,
+			tab.orderSource 
+		from
+		(SELECT
+			FROM_UNIXTIME(order_create_time,'%m%d') create_time,
+			count(order_id) orderNums,
+			'3' as orderSource
+		from b_baidu_order 
+		where shop_id=#{shop_id}
+			<if test="bdOrderStatus !=null">and status =#{bdOrderStatus}</if>
+			<if test="bdOrderStatusList !=null">
+				and status in  
+		        <foreach item="item" index="index" collection="bdOrderStatusList" open="("  
+		            separator="," close=")">  
+		            #{item}  
+		        </foreach>
+			</if>
+			<if test="bdPatyStatus !=null">and order_pay_status=#{bdPatyStatus}</if>
+			GROUP BY FROM_UNIXTIME(order_create_time, '%m%d')
+		UNION All
+		SELECT
+			FROM_UNIXTIME(ctime, '%m%d') create_time,
+			count(order_id) orderNums,
+			'2' as orderSource
+		from b_meituan_order 
+		where app_poi_code=#{app_poi_code} 
+			<if test="mtOrderStatus !=null">and status =#{mtOrderStatus}</if>
+			<if test="mtOrderStatusList !=null">
+				and status in  
+		        <foreach item="item" index="index" collection="mtOrderStatusList" open="("  
+		            separator="," close=")">  
+		            #{item}  
+		        </foreach>
+			</if>
+			<if test="mtPatyStatus !=null">and pay_status=#{mtPatyStatus}</if>
+			GROUP BY DATE_FORMAT(ctime,'%m%d')
+		UNION All
+		SELECT
+			DATE_FORMAT(cre_date,'%m%d') create_time,
+			count(id) orderNums,
+			'1' as orderSource
+		from b_order_group 
+		where mall_code =#{mall_code}
+			<if test="status !=null">and order_group_status =#{status}</if>
+			<if test="orderStatusList !=null">
+				and order_group_status in  
+		        <foreach item="item" index="index" collection="orderStatusList" open="("  
+		            separator="," close=")">  
+		            #{item}  
+		        </foreach>
+			</if>
+			<if test="pay_status !=null">and pay_status=#{pay_status}</if>
+			GROUP BY DATE_FORMAT(cre_date,'%m%d')
+		UNION All
+		SELECT
+			DATE_FORMAT(orderStartTime,'%m%d') create_time,
+			count(orderId) orderNums,
+			'4' as orderSource
+		from b_jddj_order 
+		where produceStationNoIsv =#{produceStationNoIsv}
+			<if test="jdOrderStatus !=null">and orderStatus =#{jdOrderStatus}</if>
+			<if test="jdOrderStatusList !=null">
+				and orderStatus in  
+		        <foreach item="item" index="index" collection="jdOrderStatusList" open="("  
+		            separator="," close=")">  
+		            #{item}  
+		        </foreach>
+			</if>
+			GROUP BY DATE_FORMAT(orderStartTime,'%m%d')
+		)tab
+		where tab.create_time between date_format(date_add(curdate(), interval - day(curdate()) + 1 day),'%m%d 00:00:00') and date_format(last_day(curdate()), '%m%d 23:59:59')
+		)tab1 group by tab1.create_time 
+	</select>
+	
+	
+	<!-- 统计当天的所有订单数据 -->
+	<select id="sumCurDayData" parameterType="com.linjia.web.query.ThirdLogisOrderQuery" resultType="com.linjia.web.model.SumOrder">
+		select tab1.create_time,ROUND(sum(tab1.total_price),2) total_price,sum(tab1.orderNums) orderNums from (		
+		SELECT
+			DATE_FORMAT(cre_date,'%Y年%m月%d日') create_time,
+			sum(total_price) total_price,
+			count(id) orderNums,
+			'1' as orderSource
+		from b_order_group 
+		where  mall_code =#{mall_code}
+			<if test="status !=null">and order_group_status =#{status}</if>
+			<if test="orderStatusList !=null">
+				and order_group_status in  
+		        <foreach item="item" index="index" collection="orderStatusList" open="("  
+		            separator="," close=")">  
+		            #{item}  
+		        </foreach>
+			</if>
+			<if test="pay_status !=null">and pay_status=#{pay_status}</if>
+			<if test="send_type !=null">and send_type=#{send_type}</if>
+			and DATE_FORMAT(cre_date,'%Y-%m-%d %H:%i:%S') between date_format(now(), '%Y-%m-%d 00:00:00') and date_format(now(), '%Y-%m-%d 23:59:59')
+			GROUP BY DATE_FORMAT(cre_date,'%Y-%m-%d')
+		UNION ALL	
+		SELECT
+			FROM_UNIXTIME(ctime, '%Y年%m月%d日') create_time,
+			sum(total) total_price,
+			count(order_id) orderNums,
+			'2' as orderSource
+		from b_meituan_order 
+		where app_poi_code=#{app_poi_code}
+			<if test="mtOrderStatus !=null">and status =#{mtOrderStatus}</if>
+			<if test="mtOrderStatusList !=null">
+				and status in  
+		        <foreach item="item" index="index" collection="mtOrderStatusList" open="("  
+		            separator="," close=")">  
+		            #{item}  
+		        </foreach>
+			</if>
+			<if test="mtPatyStatus !=null">and pay_status=#{mtPatyStatus}</if>
+			<if test="send_type !=null">and is_third_shipping=#{send_type}</if>
+			and FROM_UNIXTIME(ctime, '%Y-%m-%d %H:%i:%S') between date_format(now(), '%Y-%m-%d 00:00:00') and date_format(now(), '%Y-%m-%d 23:59:59')
+			GROUP BY DATE_FORMAT(ctime,'%Y-%m-%d')
+		UNION ALL
+		SELECT
+			FROM_UNIXTIME(order_create_time,'%Y年%m月%d日') create_time,
+			ROUND(sum(order_total_fee)/100,2) total_price,
+			count(order_id) orderNums,
+			'3' as orderSource
+		from b_baidu_order 
+		where shop_id=#{shop_id}
+		<if test="bdOrderStatus !=null">and status =#{bdOrderStatus}</if>
+		<if test="bdOrderStatusList !=null">
+			and status in  
+		        <foreach item="item" index="index" collection="bdOrderStatusList" open="("  
+		            separator="," close=")">  
+		            #{item}
+		        </foreach>
+		</if>
+		<if test="bdPatyStatus !=null">and order_pay_status=#{bdPatyStatus}</if>
+		<if test="send_type !=null">and order_delivery_party=#{send_type}</if>
+			and FROM_UNIXTIME(order_create_time,'%Y-%m-%d %H:%i:%S') between date_format(now(), '%Y-%m-%d 00:00:00') and date_format(now(), '%Y-%m-%d 23:59:59')
+			GROUP BY FROM_UNIXTIME(order_create_time, '%Y-%m-%d')
+		UNION ALL	
+		SELECT
+			DATE_FORMAT(orderStartTime,'%Y年%m月%d日') create_time,
+			ROUND(sum(orderBuyerPayableMoney - packagingMoney) / 100, 2) total_price,
+			count(orderId) orderNums,
+			'4' as orderSource
+		from b_jddj_order 
+		where  produceStationNoIsv =#{produceStationNoIsv}
+			<if test="jdOrderStatus !=null">and orderStatus =#{jdOrderStatus}</if>
+			<if test="jdOrderStatusList !=null">
+				and orderStatus in  
+		        <foreach item="item" index="index" collection="jdOrderStatusList" open="("  
+		            separator="," close=")">  
+		            #{item}  
+		        </foreach>
+			</if>
+			and orderStartTime between date_format(now(), '%Y-%m-%d 00:00:00') and date_format(now(), '%Y-%m-%d 23:59:59')
+			GROUP BY DATE_FORMAT(orderStartTime,'%Y-%m-%d')
+		)tab1
+	</select>
+	
+	<!-- 邻家预约定时消息推送 查询-->
+	<select id="selectLjReserveOrder" resultType="String">
+		select
+			DISTINCT jdi.registration_id
+			from  b_jgpush_device_info jdi,b_order_group bog
+			where  jdi.mall_code=bog.mall_code
+			and bog.order_group_status =2
+			and bog.pay_status=1
+			and bog.send_type=0
+			and date_add(str_to_date(CONCAT(date_format(send_date,'%Y-%m-%d'),' ',send_hour),'%Y-%m-%d %H:%i:%s'),INTERVAL 1 hour) &gt;= NOW()
+	</select>
+	
+	<!-- 京东预约定时消息推送 查询-->
+	<select id="selectJdReserveOrder" resultType="String">
+		SELECT
+	          DISTINCT bjdi.registration_id
+        FROM
+	          `b_jddj_order` bjo
+              INNER JOIN b_jgpush_device_info bjdi ON bjo.produceStationNoIsv = bjdi.mall_code
+        WHERE
+	          bjo.deliveryTime != 0 AND bjo.orderStatus = 32000
+              <![CDATA[AND (unix_timestamp(bjo.orderPreStartDeliveryTime) - unix_timestamp()) <= 1800]]>
+              <![CDATA[AND (unix_timestamp(bjo.orderPreStartDeliveryTime) - unix_timestamp()) > 0]]>
+	</select>
+	
+	<!-- 美团推送数据重复查询 -->
+	<select id="selectMtOrderNum" parameterType="java.lang.Long"
+		resultType="int">
+		select count(*) from b_meituan_order where order_id=#{orderId}
+	</select>
+	
+<!-- 查询京东使用 -->
+	<select id="selectLJpdlist" parameterType="com.linjia.web.query.ThirdLogisOrderQuery"
+		resultType="com.linjia.web.model.ThirdOrder">
+		select
+		id ,
+		mall_code ,
+		mall_name,
+		receive_name,
+		receive_phone,
+		receive_address,
+		send_type,
+		cre_date create_time,
+		send_date,
+		pay_type,
+		total_price,
+		send_price,
+		real_price,
+		order_group_status status,
+		end_time
+		recive_time,
+		send_hour,
+		send_logistics_type,
+		orderNum,
+		urgeNum,
+		'1' as
+		orderSource
+		from b_order_group
+		where 1=1
+		<if test="status !=null">and order_group_status =#{status}</if>
+		<if test="orderStatusList !=null">
+			and order_group_status in
+			<foreach item="item" index="index" collection="orderStatusList"
+				open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="send_type !=null">and send_type=#{send_type}</if>
+		<if test="pay_status !=null">and pay_status=#{pay_status}</if>
+		<if test="order_send_type !=null">and order_send_type=#{order_send_type}</if>
+		<if test="send_logistics_type !=null">and send_logistics_type=#{send_logistics_type}</if>
+		<if test="sumSend_date !=null">AND CONCAT(date_format(send_date,'%Y-%m-%d'),' ',send_hour) BETWEEN DATE_SUB(CURDATE(),INTERVAL 7 DAY) and date_add(CURDATE(),INTERVAL 15 Day)
+		</if>
+		<if test="temp !=null">
+			and uhd_order_id IS NULL and cre_date between
+			date_format('2016-12-20 0:00:00', '%Y-%m-%d %H:%i:%S') and
+			date_format('2017-01-31 23:59:59', '%Y-%m-%d %H:%i:%S')</if>
+		<if test="orderPx ==null">
+			order by cre_date desc
+		</if>
+	</select>
+
+	<!-- 查询饿了么订单详情 -->
+	<select id="selectElemeOrder" parameterType="com.linjia.web.query.ThirdLogisOrderQuery"
+		resultType="com.linjia.web.model.ThirdOrder">
+		select
+			id,
+			shopId mall_code,
+			shopName mall_name,
+			consignee receive_name,
+			phoneList receive_phone,
+			deliveryPoiAddress receive_address,
+			'0' as send_type,
+			createdAt create_time,
+			deliverTime send_date,
+			0 as send_hour,
+			0 as pay_type, 
+			totalPrice total_price, 
+			deliverFee send_price,
+			income real_price,
+			order_status status,
+			cancelReason,
+			recive_time,
+			description remark,
+			'5' as orderSource
+		from b_eleme_order where id=#{order_id}
+	</select>
+
+<!-- 查询饿了么 -->
+	<select id="selectElemeSumlist" parameterType="com.linjia.web.query.ThirdLogisOrderQuery"
+		resultType="com.linjia.web.model.ThirdOrder">
+		select
+			id,
+			shopId mall_code,
+			shopName mall_name,
+			consignee receive_name,
+			phoneList receive_phone,
+			deliveryPoiAddress receive_address,
+			'0' as send_type,
+			createdAt create_time,
+			deliverTime send_date,
+			0 as send_hour,
+			0 as pay_type, 
+			totalPrice total_price, 
+			deliverFee send_price,
+			income real_price,
+			order_status status,
+			cancelReason,
+			recive_time,
+			description remark,
+			'5' as orderSource
+		from b_eleme_order
+		where shopId=#{shop_id}
+		<if test="elemeOrderStatus !=null">and order_status =#{elemeOrderStatus}</if>
+		<if test="elemeOrderStatusList !=null">
+			and order_status in
+			<foreach item="item" index="index" collection="elemeOrderStatusList"
+				open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="sumSend_date !=null">AND date_format(deliverTime,'%Y-%m-%d') BETWEEN DATE_SUB(CURDATE(),INTERVAL 7 DAY) and date_add(CURDATE(),INTERVAL 15 Day)
+		</if>
+		<if test="temp !=null">
+			and createdAt between
+			date_format('2016-12-20 0:00:00', '%Y-%m-%d %H:%i:%S') and
+			date_format('2017-01-31 23:59:59', '%Y-%m-%d %H:%i:%S')</if>
+		<if test="orderPx ==null">
+			order by createdAt desc
+		</if>
+	</select>
+	
+</mapper>

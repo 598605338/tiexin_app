@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.linjia.web.dao.OrderGroupProductMapper" >
+  <resultMap id="BaseResultMap" type="com.linjia.web.model.OrderGroupProduct" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="group_id" property="groupId" jdbcType="BIGINT" />
+    <result column="order_id" property="orderId" jdbcType="BIGINT" />
+    <result column="product_id" property="productId" jdbcType="INTEGER" />
+    <result column="p_code" property="pCode" jdbcType="VARCHAR" />
+    <result column="p_name" property="pName" jdbcType="VARCHAR" />
+    <result column="quantity" property="quantity" jdbcType="INTEGER" />
+    <result column="item_price" property="itemPrice" jdbcType="DECIMAL" />
+    <result column="product_price" property="productPrice" jdbcType="DECIMAL" />
+    <result column="discount_amount" property="discountAmount" jdbcType="DECIMAL" />
+    <result column="apported_discount_amount" property="apportedDiscountAmount" jdbcType="DECIMAL" />
+    <result column="item_total_price" property="itemTotalPrice" jdbcType="DECIMAL" />
+    <result column="p_send_type" property="pSendType" jdbcType="INTEGER" />
+    <result column="image_path" property="imagePath" jdbcType="VARCHAR" />
+    <result column="trade_product_ids" property="tradeProductIds" jdbcType="VARCHAR" />
+    <result column="trade_activity_id" property="tradeActivityId" jdbcType="INTEGER" />
+    <result column="is_spq" property="isSpq" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    bogp.id, bogp.group_id, bogp.product_id, bogp.p_code, bogp.p_name, bogp.quantity, bogp.item_price, bogp.product_price, bogp.discount_amount, bogp.apported_discount_amount, bogp.item_total_price, bogp.p_send_type, CONCAT('${@com.linjia.constants.Application@SERVER_BASE_PATH}',bp.image_path) AS image_path,bogp.is_spq,bogp.trade_product_ids,bogp.trade_activity_id
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from b_order_group_product bogp INNER JOIN b_product bp ON bogp.product_id = bp.id
+    where bogp.id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from b_order_group_product
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  
+  <!-- 批量插入确认下单中购买的商品数据 -->
+  <insert id="insertBatchProductList" parameterType="map" >
+    insert into b_order_group_product
+        (group_id,
+        product_id,
+        p_code,
+        p_name,
+        quantity,
+        item_price,
+        product_price,
+        discount_amount,
+        apported_discount_amount,
+        item_total_price,
+        p_send_type,
+        miaoshao_active_product_id,
+        tail_goods_clear_id,
+        activity_type,
+        activity_id,
+        parent_p_code,
+        trade_product_ids,
+        trade_activity_id,
+        is_spq)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+        (
+        #{groupId,jdbcType=BIGINT},
+        #{item.productId,jdbcType=INTEGER},
+        #{item.pCode,jdbcType=VARCHAR},
+        #{item.pName,jdbcType=VARCHAR},
+        #{item.quantity,jdbcType=INTEGER},
+        #{item.itemPrice,jdbcType=DECIMAL},
+        #{item.productPrice,jdbcType=DECIMAL},
+        #{item.discountAmount,jdbcType=DECIMAL},
+        #{item.apportedDiscountAmount,jdbcType=DECIMAL},
+        #{item.itemTotalPrice,jdbcType=DECIMAL},
+        #{item.pSendType,jdbcType=INTEGER},
+        #{item.miaoshaoActiveProductId,jdbcType=INTEGER},
+        #{item.tailGoodsClearId,jdbcType=INTEGER},
+        #{item.activityType,jdbcType=INTEGER},
+        #{item.activityId,jdbcType=INTEGER},
+        #{item.parentPCode,jdbcType=VARCHAR},
+        #{item.tradeProductIds,jdbcType=VARCHAR},
+        #{item.tradeActivityId,jdbcType=INTEGER},
+        #{item.isSpq,jdbcType=INTEGER}
+        )
+        </foreach>
+  </insert>
+  
+  <!-- 根据订单id查询相关的商品列表 -->
+  <select id="selectProductListByGroupId" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from b_order_group_product bogp INNER JOIN b_product bp ON bogp.p_code = bp.p_code
+    where group_id = #{groupId,jdbcType=BIGINT} and parent_p_code IS NULL
+  </select>
+  
+  <!-- 根据订单id查询相关的商品的赠送积分之和 -->
+  <select id="selectSumScoreByGroupId" resultType="java.lang.Integer" parameterType="java.lang.Long" >
+    SELECT SUM(bp.send_score*bogp.quantity) AS score FROM `b_order_group_product` bogp INNER JOIN b_product bp ON bogp.p_code = bp.p_code where group_id = #{groupId,jdbcType=BIGINT}
+  </select>
+  
+  
+</mapper>

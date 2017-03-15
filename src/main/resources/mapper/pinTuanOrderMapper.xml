@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	namespace：必须与对应的接口全类名一致
+	id:必须与对应接口的某个对应的方法名一致
+	
+ -->
+<mapper namespace="com.linjia.web.dao.PinTuanOrderMapper">
+	<!-- 缓存 -->  
+   <!--  <cache eviction="LRU" type="com.linjia.core.feature.cache.MybatisRedisCache" />  -->
+    
+	<insert id="insertPtOrder" parameterType="com.linjia.web.model.PinTuanOrder" useGeneratedKeys="true" keyProperty="id">
+		insert into b_pintuan_order(order_id,start_time,end_time,cre_date,user_id,pay_type,pay_status,price,p_name,address_id,pt_status,product_id,p_code,remark,status,add_score,onebuy_price,real_price,third_logistics_no,pt_base_id,pt_id,buyPersonNum) 
+			values(#{order_id},SYSDATE(),date_add(now(), interval 15 minute),SYSDATE(),#{user_id},#{pay_type},#{pay_status},#{price},#{p_name},#{address_id},#{pt_status},#{product_id},#{p_code},#{remark},#{status},#{add_score},#{onebuy_price},#{real_price},#{third_logistics_no},#{pt_base_id},#{pt_id},#{buyPersonNum})
+	</insert>
+	
+	<update id="updatePtOrderById" parameterType="com.linjia.web.model.PinTuanOrder">
+		update b_pintuan_order
+		<set>
+			<if test="pay_type !=null">pay_type =#{pay_type},</if>
+			<if test="pay_status !=null">pay_status =#{pay_status},</if>
+			<if test="price !=null">price =#{price},</if>
+			<if test="p_name !=null">p_name =#{p_name},</if>
+			<if test="address_id !=null">address_id =#{address_id},</if>
+			<if test="pt_status !=null">pt_status =#{pt_status},</if>
+			<if test="product_id !=null">product_id =#{product_id},</if>
+			<if test="p_code !=null">p_code =#{p_code},</if>
+			<if test="status !=null">status =#{status},</if>
+			<if test="send_fee !=null">send_fee =#{send_fee},</if>
+			<if test="remark !=null">remark =#{remark},</if>
+			<if test="add_score !=null">add_score =#{add_score},</if>
+			<if test="onebuy_price !=null">onebuy_price =#{onebuy_price},</if>
+			<if test="pay_time !=null">pay_time =#{pay_time},</if>
+			<if test="real_price !=null">real_price =#{real_price},</if>
+			<if test="third_logistics_no !=null">third_logistics_no =#{third_logistics_no},send_time=SYSDATE(),</if>
+			<if test="third_logistics_name !=null">third_logistics_name=#{third_logistics_name}</if>
+			<if test="pt_base_id !=null">pt_base_id =#{pt_base_id},</if>
+			<if test="cancel_time !=null">cancel_time =#{cancel_time},</if>
+			<if test="order_success_time !=null">order_success_time =#{order_success_time},</if>
+			<if test="cancel_reason !=null">cancel_reason =#{cancel_reason},</if>
+			<if test="buyPersonNum !=null">buyPersonNum =#{buyPersonNum},</if>
+		</set>
+			where  order_id=#{order_id} 
+		<if test="user_id !=null">and user_id=#{user_id}</if>
+		<if test="pt_id !=null">and pt_id=#{pt_id}</if>
+	</update>
+	
+	<delete id="deletePtOrderById" parameterType="int">
+		delete from b_pintuan_order where order_id=#{order_id}
+	</delete>
+	
+	 <!-- mybsits_config中配置的alias类别名,也可直接配置resultType为类路劲 -->  
+	<select id="selectPtOrderById" parameterType="long" resultType="com.linjia.web.model.PinTuanOrder">
+		select id,order_id,start_time,end_time,cre_date,user_id,pay_type,pay_status,price,p_name,address_id,pt_status,product_id,send_fee,quanty,p_code,status,remark,add_score,onebuy_price,pay_time,real_price,third_logistics_no,third_logistics_name,pt_base_id,cancel_time,order_success_time,send_time,cancel_reason,pt_id,buyPersonNum from b_pintuan_order where order_id=#{order_id}
+	</select>
+	
+	<select id="selectPtOrderList" resultType="com.linjia.web.model.PinTuanOrder"  parameterType="com.linjia.web.query.PinTuanOrderQuery">
+		select id,order_id,start_time,end_time,cre_date,user_id,pay_type,pay_status,price,p_name,address_id,pt_status,product_id,send_fee,quanty,p_code,status,remark,add_score,onebuy_price,pay_time,real_price,third_logistics_no,third_logistics_name,pt_base_id,cancel_time,order_success_time,send_time,cancel_reason,pt_id,buyPersonNum from b_pintuan_order  where 1=1 
+		<if test="user_id !=null">and user_id=#{user_id}</if>
+		order by  cre_date desc
+		limit #{startIndex},#{pageSize}
+	</select>
+	
+ <!-- 查询所有超时未支付订单 -->
+  <select id="selectTimeOutOrderUnPay" resultType="com.linjia.web.model.PinTuanOrder">
+    select 
+    id,order_id,start_time,end_time,cre_date,user_id,pay_type,pay_status,price,p_name,address_id,pt_status,product_id,send_fee,quanty,p_code,status,remark,add_score,onebuy_price,pay_time,real_price,third_logistics_no,pt_base_id,cancel_time,order_success_time,cancel_reason,pt_id,buyPersonNum
+    from b_pintuan_order
+    where status = 4 AND pt_status=1 and pay_status=0 and SYSDATE() &gt;= end_time
+  </select>
+  
+   <!-- 查询所有超10小时未成团和超活动结束时间未成团 -->
+  <select id="selectPtTimeOutOrder" resultType="com.linjia.web.model.PinTuanOrder">
+    select 
+    bpo.id,bpo.order_id,bpo.start_time,bpo.end_time,bpo.cre_date,bpo.user_id,bpo.pay_type,bpo.pay_status,bpo.price,bpo.p_name,bpo.address_id,bpo.pt_status,bpo.product_id,bpo.send_fee,bpo.quanty,bpo.p_code,bpo.status,bpo.remark,bpo.add_score,bpo.onebuy_price,bpo.pay_time,bpo.real_price,bpo.third_logistics_no,bpo.pt_base_id,bpo.cancel_time,bpo.order_success_time,bpo.cancel_reason,bpo.pt_id,bpo.buyPersonNum
+    from b_pintuan_order bpo,b_activity_pintuan_base bapb
+    where bpo.status = 4 AND bpo.pt_status=1 and bpo.pay_status=1 and bpo.pt_base_id=bapb.id and (SYSDATE() &gt;=bapb.end_time or SYSDATE() &gt;= date_add(bpo.cre_date, interval 10 HOUR))
+  </select>
+	
+	<!-- 根据团id更新订单拼团状态 -->
+	<update id="updatePtOrderByPtId" parameterType="com.linjia.web.model.PinTuanOrder">
+		update b_pintuan_order
+		<set>
+			<if test="pt_status !=null">pt_status =#{pt_status},</if>
+			<if test="status !=null">status =#{status},</if>
+		</set>
+		where pt_id=#{pt_id} and pt_base_id=#{pt_base_id} and pay_status=1
+	</update>
+</mapper>

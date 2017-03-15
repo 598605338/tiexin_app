@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.linjia.web.dao.JddjOrderDiscountMapper" >
+  <resultMap id="BaseResultMap" type="com.linjia.web.thirdService.jddj.model.OrderDiscountDTO" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="orderId" property="orderId" jdbcType="BIGINT" />
+    <result column="adjustId" property="adjustId" jdbcType="BIGINT" />
+    <result column="skuId" property="skuId" jdbcType="BIGINT" />
+    <result column="skuIds" property="skuIds" jdbcType="VARCHAR" />
+    <result column="discountType" property="discountType" jdbcType="INTEGER" />
+    <result column="discountDetailType" property="discountDetailType" jdbcType="INTEGER" />
+    <result column="discountCode" property="discountCode" jdbcType="VARCHAR" />
+    <result column="discountPrice" property="discountPrice" jdbcType="BIGINT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, orderId, adjustId, skuId, skuIds, discountType, discountDetailType, discountCode, 
+    discountPrice
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.linjia.web.thirdService.jddj.model.OrderDiscountDTO" >
+    select
+    <include refid="Base_Column_List" />
+    from b_jddj_order_discount
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from b_jddj_order_discount
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from b_jddj_order_discount
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.linjia.web.thirdService.jddj.model.OrderDiscountDTO" >
+    insert into b_jddj_order_discount (id, orderId, adjustId, 
+      skuId, skuIds, discountType, 
+      discountDetailType, discountCode, discountPrice
+      )
+    values (#{id,jdbcType=INTEGER}, #{orderId,jdbcType=BIGINT}, #{adjustId,jdbcType=BIGINT}, 
+      #{skuId,jdbcType=BIGINT}, #{skuIds,jdbcType=VARCHAR}, #{discountType,jdbcType=INTEGER}, 
+      #{discountDetailType,jdbcType=INTEGER}, #{discountCode,jdbcType=VARCHAR}, #{discountPrice,jdbcType=BIGINT}
+      )
+  </insert>
+  
+  <!-- 批量插入订单商品优惠记录  -->
+  <insert id="insertBatch" parameterType="map" >
+    insert into b_jddj_order_discount (orderId, adjustId, 
+      skuId, skuIds, discountType, 
+      discountDetailType, discountCode, discountPrice
+      )
+    values 
+    <foreach collection="list" item="item" index="index" separator=",">
+    (
+    #{orderId,jdbcType=BIGINT}, 
+    #{adjustId,jdbcType=BIGINT}, 
+    #{item.skuId,jdbcType=BIGINT}, 
+    #{item.skuIds,jdbcType=VARCHAR}, 
+    #{item.discountType,jdbcType=INTEGER}, 
+    #{item.discountDetailType,jdbcType=INTEGER}, 
+    #{item.discountCode,jdbcType=VARCHAR}, 
+    #{item.discountPrice,jdbcType=BIGINT}
+      )
+    </foreach>
+  </insert>
+  <insert id="insertSelective" parameterType="com.linjia.web.thirdService.jddj.model.OrderDiscountDTO" >
+    insert into b_jddj_order_discount
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="orderId != null" >
+        orderId,
+      </if>
+      <if test="adjustId != null" >
+        adjustId,
+      </if>
+      <if test="skuId != null" >
+        skuId,
+      </if>
+      <if test="skuIds != null" >
+        skuIds,
+      </if>
+      <if test="discountType != null" >
+        discountType,
+      </if>
+      <if test="discountDetailType != null" >
+        discountDetailType,
+      </if>
+      <if test="discountCode != null" >
+        discountCode,
+      </if>
+      <if test="discountPrice != null" >
+        discountPrice,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="orderId != null" >
+        #{orderId,jdbcType=BIGINT},
+      </if>
+      <if test="adjustId != null" >
+        #{adjustId,jdbcType=BIGINT},
+      </if>
+      <if test="skuId != null" >
+        #{skuId,jdbcType=BIGINT},
+      </if>
+      <if test="skuIds != null" >
+        #{skuIds,jdbcType=VARCHAR},
+      </if>
+      <if test="discountType != null" >
+        #{discountType,jdbcType=INTEGER},
+      </if>
+      <if test="discountDetailType != null" >
+        #{discountDetailType,jdbcType=INTEGER},
+      </if>
+      <if test="discountCode != null" >
+        #{discountCode,jdbcType=VARCHAR},
+      </if>
+      <if test="discountPrice != null" >
+        #{discountPrice,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.linjia.web.thirdService.jddj.model.OrderDiscountDTO" resultType="java.lang.Integer" >
+    select count(*) from b_jddj_order_discount
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update b_jddj_order_discount
+    <set >
+      <if test="id != null" >
+        id = #{id,jdbcType=INTEGER},
+      </if>
+      <if test="orderId != null" >
+        orderId = #{orderId,jdbcType=BIGINT},
+      </if>
+      <if test="adjustId != null" >
+        adjustId = #{adjustId,jdbcType=BIGINT},
+      </if>
+      <if test="skuId != null" >
+        skuId = #{skuId,jdbcType=BIGINT},
+      </if>
+      <if test="skuIds != null" >
+        skuIds = #{skuIds,jdbcType=VARCHAR},
+      </if>
+      <if test="discountType != null" >
+        discountType = #{discountType,jdbcType=INTEGER},
+      </if>
+      <if test="discountDetailType != null" >
+        discountDetailType = #{discountDetailType,jdbcType=INTEGER},
+      </if>
+      <if test="discountCode != null" >
+        discountCode = #{discountCode,jdbcType=VARCHAR},
+      </if>
+      <if test="discountPrice != null" >
+        discountPrice = #{discountPrice,jdbcType=BIGINT},
+      </if>
+    </set>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update b_jddj_order_discount
+    set id = #{id,jdbcType=INTEGER},
+      orderId = #{orderId,jdbcType=BIGINT},
+      adjustId = #{adjustId,jdbcType=BIGINT},
+      skuId = #{skuId,jdbcType=BIGINT},
+      skuIds = #{skuIds,jdbcType=VARCHAR},
+      discountType = #{discountType,jdbcType=INTEGER},
+      discountDetailType = #{discountDetailType,jdbcType=INTEGER},
+      discountCode = #{discountCode,jdbcType=VARCHAR},
+      discountPrice = #{discountPrice,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.linjia.web.thirdService.jddj.model.OrderDiscountDTO" >
+    update b_jddj_order_discount
+    <set >
+      <if test="orderId != null" >
+        orderId = #{orderId,jdbcType=BIGINT},
+      </if>
+      <if test="adjustId != null" >
+        adjustId = #{adjustId,jdbcType=BIGINT},
+      </if>
+      <if test="skuId != null" >
+        skuId = #{skuId,jdbcType=BIGINT},
+      </if>
+      <if test="skuIds != null" >
+        skuIds = #{skuIds,jdbcType=VARCHAR},
+      </if>
+      <if test="discountType != null" >
+        discountType = #{discountType,jdbcType=INTEGER},
+      </if>
+      <if test="discountDetailType != null" >
+        discountDetailType = #{discountDetailType,jdbcType=INTEGER},
+      </if>
+      <if test="discountCode != null" >
+        discountCode = #{discountCode,jdbcType=VARCHAR},
+      </if>
+      <if test="discountPrice != null" >
+        discountPrice = #{discountPrice,jdbcType=BIGINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.linjia.web.thirdService.jddj.model.OrderDiscountDTO" >
+    update b_jddj_order_discount
+    set orderId = #{orderId,jdbcType=BIGINT},
+      adjustId = #{adjustId,jdbcType=BIGINT},
+      skuId = #{skuId,jdbcType=BIGINT},
+      skuIds = #{skuIds,jdbcType=VARCHAR},
+      discountType = #{discountType,jdbcType=INTEGER},
+      discountDetailType = #{discountDetailType,jdbcType=INTEGER},
+      discountCode = #{discountCode,jdbcType=VARCHAR},
+      discountPrice = #{discountPrice,jdbcType=BIGINT}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

@@ -1,7 +1,7 @@
 <component name="ArtifactManager">
   <artifact type="war" name="tiexin_app:war">
     <output-path>$PROJECT_DIR$/target</output-path>
-    <root id="archive" name="tiexin-app.war">
+    <root id="archive" name="tiexin-app-1.0-SNAPSHOT.war">
       <element id="artifact" artifact-name="tiexin_app:war exploded" />
     </root>
   </artifact>

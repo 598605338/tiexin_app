@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	namespace：必须与对应的接口全类名一致
+	id:必须与对应接口的某个对应的方法名一致
+	
+ -->
+<mapper namespace="com.linjia.web.dao.LogisticsMapper">
+	<!-- 缓存 -->  
+   <!--  <cache eviction="LRU" type="com.linjia.core.feature.cache.MybatisRedisCache" />  -->
+
+	<insert id="insertLogistics" parameterType="com.linjia.web.model.Logistics" useGeneratedKeys="true" keyProperty="id">
+		insert into b_logistic_info(order_id,order_status,dm_id,cancel_reason,dm_name,dm_mobile,update_time,action_type,reason_id,mall_code,order_source,outer_id,fee,distance,logis_type,create_time) 
+		values(#{order_id},#{order_status},#{dm_id},#{cancel_reason},#{dm_name},#{dm_mobile},#{update_time},#{action_type},#{reason_id},#{mall_code},#{order_source},#{outer_id},#{fee},#{distance},#{logis_type},SYSDATE())
+	</insert>
+	
+	<update id="deleteLogistics" parameterType="com.linjia.web.model.Logistics">
+		update b_logistic_info
+		set deleted=1
+		where 1=1 and order_id=#{order_id}
+	</update>
+	
+	<update id="updateLogistics" parameterType="com.linjia.web.model.Logistics">
+		update b_logistic_info
+		<set>
+			<if test="order_status != null">order_status=#{order_status},</if>
+			<if test="dm_id != null">dm_id=#{dm_id},</if>
+			<if test="cancel_reason != null">cancel_reason=#{cancel_reason},</if>
+			<if test="dm_name != null">dm_name=#{dm_name},</if>
+			<if test="dm_mobile != null">dm_mobile=#{dm_mobile},</if>
+			<if test="update_time != null">update_time=#{update_time},</if>
+			<if test="recieve_time != null">recieve_time=#{recieve_time},</if>
+			<if test="send_time != null">send_time=#{send_time},</if>
+			<if test="finish_time != null">finish_time=#{finish_time},</if>
+			<if test="action_type != null">action_type=#{action_type},</if>
+			<if test="reason_id != null">reason_id=#{reason_id},</if>
+			<if test="outer_id != null">outer_id=#{outer_id},</if>
+			<if test="fee != null">fee=#{fee},</if>
+			<if test="distance != null">distance=#{distance},</if>
+			<if test="deleted != null and deleted !='' ">deleted=#{deleted},</if>
+			<if test="logis_type != null">logis_type=#{logis_type},</if>
+		</set>
+  		where 1=1 and order_id=#{order_id}
+  		<if test="ifDeleted != null">
+  		  and deleted=#{ifDeleted}
+		</if>
+	</update>
+	
+	<!-- 根据id查物流信息-->
+	<select id="selectLogisticsById" parameterType="com.linjia.web.query.LogisticsQuery" resultType="com.linjia.web.model.Logistics">
+		select id,order_id,order_status,dm_id,cancel_reason,dm_name,dm_mobile,update_time,action_type,reason_id,mall_code,order_source,outer_id,fee,distance,logis_type,create_time,recieve_time,send_time,finish_time
+		from  b_logistic_info where deleted=0 
+		<if test="order_id !=null">
+			and order_id=#{order_id}
+		</if>
+		<if test="order_source !=null">
+			and order_source=#{order_source}
+		</if>
+		<if test="outer_id !=null">
+			and outer_id=#{outer_id}
+		</if>
+	</select>
+	
+</mapper>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	namespace：必须与对应的接口全类名一致
+	id:必须与对应接口的某个对应的方法名一致
+	
+ -->
+<mapper namespace="com.linjia.web.dao.ProductLackMapper">
+	<!-- 缓存 -->  
+   <!--  <cache eviction="LRU" type="com.linjia.core.feature.cache.MybatisRedisCache" />  -->
+
+	<insert id="insertLackProduct" parameterType="com.linjia.web.model.ProductLack" useGeneratedKeys="true" keyProperty="id">
+		insert into b_product_lack(shop_id,p_code,order_id,platform,mall_code,create_time) 
+		values(#{shop_id},#{p_code},#{order_id},#{platform},#{mall_code},SYSDATE())
+	</insert>
+	
+	<delete id="deleteLackProduct" parameterType="map">
+		delete b_product_lack
+  		where 1=1 
+  		<if test="id !=null">and id=#{id}</if>
+  		<if test="shop_id !=null">and shop_id=#{shop_id}</if>
+  		<if test="p_code !=null">and p_code=#{p_code}</if>
+	</delete>
+	
+	<!-- 根据订单Id查询订单详情-->
+	<select id="selectLackProduct" parameterType="com.linjia.web.query.ProductLackQuery" resultType="com.linjia.web.model.ProductLack">
+		select id,shop_id,p_code,order_id,platform,mall_code,create_time
+		from  b_product_lack 
+		where order_id=#{order_id} 
+		<if test="shop_id !=null">and shop_id=#{shop_id}</if> 
+		<if test="p_code !=null">and p_code=#{p_code}</if> 
+		order by create_time desc  limit #{startIndex},#{pageSize}
+	</select>
+	
+</mapper>

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	namespace：必须与对应的接口全类名一致
+	id:必须与对应接口的某个对应的方法名一致
+	
+ -->
+<mapper namespace="com.linjia.web.dao.ActivityTradeProductMapper">
+	<!-- 缓存 -->  
+   <!--  <cache eviction="LRU" type="com.linjia.core.feature.cache.MybatisRedisCache" />  -->
+    
+	<insert id="insertActTradePro" parameterType="com.linjia.web.model.ActivityTradeProduct">
+		insert into b_trade_product(product_id,p_name,p_code,p_price,p_trade_price,quantity,activity_id,create_time) 
+		values(#{product_id},#{p_name},#{p_code},#{p_price},#{p_trade_price},#{quantity},#{activity_id},SYSDATE())
+	</insert>
+	
+	<update id="updateActTradeProById" parameterType="com.linjia.web.model.ActivityTradeProduct">
+		update b_trade_product 
+		<set>
+			<if test="product_id !=null">
+				product_id=#{product_id},
+			</if>
+			<if test="p_name !=null">
+				p_name=#{p_name},
+			</if>
+			<if test="p_code !=null">
+				p_code=#{p_code},
+			</if>
+			<if test="p_price !=null">
+				p_price=#{p_price},
+			</if>
+			<if test="p_trade_price !=null">
+				p_trade_price=#{p_trade_price},
+			</if>
+			<if test="quantity !=null">
+				quantity=#{quantity},
+			</if>
+			<if test="activity_id !=null">
+				activity_id=#{activity_id},
+			</if>
+			update_time=SYSDATE()
+		</set>
+		where id=#{id}
+	</update>
+	
+	<delete id="deleteActTradeProById" parameterType="int">
+		delete from b_trade_product where id=#{id}
+	</delete>
+	
+	<delete id="deleteActTradeProByActId" parameterType="int">
+		delete from b_trade_product where activity_id=#{activity_id}
+	</delete>
+	
+	 <!-- mybsits_config中配置的alias类别名,也可直接配置resultType为类路劲 -->  
+	<select id="selectActTradeProById" parameterType="int" resultType="com.linjia.web.model.ActivityTradeProduct">
+		select id,product_id,p_name,p_code,p_price,p_trade_price,p_send_type,quantity,activity_id,create_time,update_time from b_trade_product where id=#{id}
+	</select>
+	
+	<select id="selectActTradeProAll" resultType="com.linjia.web.model.ActivityTradeProduct" parameterType="map">
+		select btp.id,btp.product_id,btp.p_name,btp.p_code,btp.p_price,btp.p_trade_price,btp.p_send_type,btp.quantity,btp.activity_id,btp.create_time,btp.update_time,CONCAT('${@com.linjia.constants.Application@SERVER_BASE_PATH}',bp.image_path) AS image_path from b_trade_product btp INNER JOIN b_product bp ON btp.product_id = bp.id where 1=1
+		<if test="p_name !=null">
+			and btp.p_name like CONCAT(CONCAT('%',#{p_name}),'%')
+		</if>
+		<if test="activity_id !=null">
+			and btp.activity_id=#{activity_id}
+		</if>
+		<if test="list !=null">
+			and btp.id IN 
+			<foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+	</select>
+	
+	 <!-- mybsits_config中配置的alias类别名,也可直接配置resultType为类路劲 -->  
+	<select id="selectActTradeProByActId" parameterType="int" resultType="com.linjia.web.model.ActivityTradeProduct">
+		select id,product_id,p_name,p_code,p_price,p_trade_price,p_send_type,quantity,activity_id,create_time,update_time from b_trade_product where activity_id=#{activity_id}
+	</select>
+	
+	<select id="selectActTraNum" parameterType="int" resultType="int">
+		select count(*) from b_trade_product where activity_id=#{activity_id}
+	</select>
+	
+	<!-- 校验合法性并查询换购商品的换购价格 -->
+	<select id="selectTradePrice" parameterType="map" resultType="java.math.BigDecimal">
+		SELECT p_trade_price FROM `b_trade_product` WHERE id = #{id} AND p_code = #{pCode} AND activity_id = #{activityId}
+	</select>
+	
+	<!-- 查询已换购商品列表 -->
+	<select id="selectTradedProduct" parameterType="map" resultType="com.linjia.web.model.ActivityTradeProduct">
+		SELECT btp.id,btp.product_id,btp.p_name,btp.p_code,btp.p_price,btp.p_trade_price,btp.p_send_type,btp.quantity,btp.activity_id,btp.create_time,btp.update_time,CONCAT('${@com.linjia.constants.Application@SERVER_BASE_PATH}',bp.image_path) AS image_path FROM `b_trade_product` btp INNER JOIN b_product bp ON btp.product_id = bp.id  WHERE  activity_id = #{activityId} and btp.id IN
+		<foreach item="item" index="index" collection="array" open="(" separator="," close=")">  
+ 			#{item}  
+		</foreach> 
+	</select>
+	
+</mapper>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.linjia.web.dao.MiaoshaActivityProductMapper" >
+  <resultMap id="BaseResultMap" type="com.linjia.web.model.MiaoshaActivityProduct" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="shangou_base_id" property="shangouBaseId" jdbcType="INTEGER" />
+    <result column="product_id" property="productId" jdbcType="INTEGER" />
+    <result column="panic_buying_start_time" property="panicBuyingStartTime" jdbcType="TIMESTAMP" />
+    <result column="panic_buying_end_time" property="panicBuyingEndTime" jdbcType="TIMESTAMP" />
+    <result column="p_code" property="pCode" jdbcType="VARCHAR" />
+    <result column="p_name" property="pName" jdbcType="VARCHAR" />
+    <result column="p_comment" property="pComment" jdbcType="VARCHAR" />
+    <result column="p_send_type" property="pSendType" jdbcType="INTEGER" />
+    <result column="market_price" property="marketPrice" jdbcType="DECIMAL" />
+    <result column="p_unit" property="pUnit" jdbcType="VARCHAR" />
+    <result column="pb_price" property="pbPrice" jdbcType="DECIMAL" />
+    <result column="quantity" property="quantity" jdbcType="INTEGER" />
+    <result column="limit_quantity" property="limitQuantity" jdbcType="INTEGER" />
+    <result column="panic_status" property="panicStatus" jdbcType="INTEGER" />
+    <result column="sort_index" property="sortIndex" jdbcType="INTEGER" />
+    <result column="image_path" property="imagePath" jdbcType="VARCHAR" />
+    <result column="detail_path" property="detailPath" jdbcType="VARCHAR" />
+    <result column="deleted" property="deleted" jdbcType="BIT" />
+    <result column="cre_date" property="creDate" jdbcType="TIMESTAMP" />
+    <result column="update_date" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="shoppingCarId" property="shoppingCarId" jdbcType="INTEGER" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    id, shangou_base_id,product_id, panic_buying_start_time, panic_buying_end_time, p_code, p_name, p_comment,p_send_type,
+    market_price, p_unit, pb_price, quantity, limit_quantity, panic_status, sort_index, CONCAT('${@com.linjia.constants.Application@SERVER_BASE_PATH}',image_path) AS image_path, 
+    detail_path
+  </sql>
+  <sql id="Base_Column_List_1" >
+    basp.id, basp.shangou_base_id,basp.product_id, basp.panic_buying_start_time, basp.panic_buying_end_time, basp.p_code, basp.p_name, basp.p_comment,basp.p_send_type,
+    basp.market_price, basp.p_unit, basp.pb_price, basp.quantity, basp.limit_quantity, basp.panic_status, basp.sort_index, CONCAT('${@com.linjia.constants.Application@SERVER_BASE_PATH}',basp.image_path) AS image_path, 
+    basp.detail_path
+  </sql>
+  <select id="selectAllByBaseId" resultMap="BaseResultMap" parameterType="com.linjia.web.query.MiaoshaActivityProductQuery" >
+    select
+    <include refid="Base_Column_List_1" />
+    <if test="userId != null and userId !=''">
+    ,bsc.id AS shoppingCarId
+    </if>
+    from b_activity_shangou_product basp 
+    <if test="userId != null and userId !=''">
+    LEFT JOIN b_shopping_car bsc ON basp.product_id = bsc.product_id AND bsc.activity_id = basp.id AND bsc.activity_type = 7 AND bsc.user_id = #{userId,jdbcType=VARCHAR}
+    </if>
+    where basp.shangou_base_id =#{shangouBaseId} and basp.deleted =0  
+    order by basp.sort_index DESC 
+    limit #{startIndex},#{pageSize}
+  </select>
+  
+  <select id="getPanicingProductByProductId" resultMap="BaseResultMap" parameterType="map" >
+   SELECT 
+   <include refid="Base_Column_List" /> 
+   FROM `b_activity_shangou_product` 
+   WHERE product_id = #{productId} 
+   <![CDATA[
+   AND panic_buying_start_time <= #{currentDate} AND panic_buying_end_time > #{currentDate}
+   ]]> AND panic_status = 0
+   limit 1
+  </select>
+  
+  <!-- 对秒杀的商品进行减库存操作 -->
+  <update id="updateQuantityById" parameterType="map" >
+    update b_activity_shangou_product
+    set quantity = quantity - #{miaoshaoQty,jdbcType=INTEGER}
+    where id = #{miaoshaoActiveProductId,jdbcType=INTEGER}
+  </update>
+  
+</mapper>

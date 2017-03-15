@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.linjia.web.dao.ScoreOrderMapper" >
+  <resultMap id="BaseResultMap" type="com.linjia.web.model.ScoreOrder" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="score_product_id" property="scoreProductId" jdbcType="BIGINT" />
+    <result column="card_coupon_id" property="cardCouponId" jdbcType="BIGINT" />
+    <result column="user_card_coupon_id" property="userCardCouponId" jdbcType="BIGINT" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="quantity" property="quantity" jdbcType="INTEGER" />
+    <result column="type" property="type" jdbcType="INTEGER" />
+    <result column="order_status" property="orderStatus" jdbcType="INTEGER" />
+    <result column="pay_type" property="payType" jdbcType="INTEGER" />
+    <result column="price" property="price" jdbcType="DECIMAL" />
+    <result column="score" property="score" jdbcType="INTEGER" />
+    <result column="comment" property="comment" jdbcType="VARCHAR" />
+    <result column="content" property="content" jdbcType="VARCHAR" />
+    <result column="user_id" property="userId" jdbcType="VARCHAR" />
+    <result column="cre_date" property="creDate" jdbcType="TIMESTAMP" />
+    <result column="image_path" jdbcType="VARCHAR" property="imagePath" />
+    <result column="card_type" jdbcType="INTEGER" property="cardType" />
+    <result column="third_id" jdbcType="INTEGER" property="thirdId" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    bso.id, bso.score_product_id, bso.card_coupon_id, bso.user_card_coupon_id, bso.name, bso.quantity, bso.type, bso.order_status, bso.pay_type, bso.price, bso.score, bso.comment, bso.content, bso.user_id, bso.cre_date,CONCAT('${@com.linjia.constants.Application@SERVER_BASE_PATH}',bsp.image_path) AS image_path,
+    card_type,third_id
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from b_score_order bso left join b_score_product bsp on bso.score_product_id = bsp.id
+    where bso.id = #{id,jdbcType=BIGINT}
+  </select>
+  
+  <select id="selectExchangeRecordList" resultMap="BaseResultMap" parameterType="com.linjia.web.query.ScoreOrderQuery" >
+    select
+    <include refid="Base_Column_List" />
+    from b_score_order bso left join b_score_product bsp on bso.score_product_id = bsp.id
+    where 
+	bso.user_id = #{userId,jdbcType=VARCHAR}
+    order by bso.id desc
+    limit #{startIndex,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+  </select>
+  
+  <insert id="insertSelective" parameterType="com.linjia.web.model.ScoreOrder" keyProperty="id" useGeneratedKeys="true">
+    insert into b_score_order(
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="scoreProductId != null" >
+        score_product_id,
+      </if>
+      <if test="cardCouponId != null" >
+        card_coupon_id,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="quantity != null" >
+        quantity,
+      </if>
+      <if test="type != null" >
+        type,
+      </if>
+      <if test="orderStatus != null" >
+        order_status,
+      </if>
+      <if test="payType != null" >
+        pay_type,
+      </if>
+      <if test="price != null" >
+        price,
+      </if>
+      <if test="score != null" >
+        score,
+      </if>
+      <if test="comment != null" >
+        comment,
+      </if>
+      <if test="content != null" >
+        content,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="startTime != null" >
+        start_time,
+      </if>
+      <if test="endTime != null" >
+        end_time,
+      </if>
+      <if test="cardType != null" >
+        card_type,
+      </if>
+      <if test="thirdId != null" >
+        third_id,
+      </if>
+      <if test="creDate != null" >
+        cre_date
+      </if>
+      ) values(
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="scoreProductId != null" >
+        #{scoreProductId,jdbcType=BIGINT},
+      </if>
+      <if test="cardCouponId != null" >
+        #{cardCouponId,jdbcType=BIGINT},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="quantity != null" >
+        #{quantity,jdbcType=INTEGER},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=INTEGER},
+      </if>
+      <if test="orderStatus != null" >
+        #{orderStatus,jdbcType=INTEGER},
+      </if>
+      <if test="payType != null" >
+        #{payType,jdbcType=INTEGER},
+      </if>
+      <if test="price != null" >
+        #{price,jdbcType=DECIMAL},
+      </if>
+      <if test="score != null" >
+        #{score,jdbcType=INTEGER},
+      </if>
+      <if test="comment != null" >
+        #{comment,jdbcType=VARCHAR},
+      </if>
+      <if test="content != null" >
+        #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="startTime != null" >
+        #{startTime,jdbcType=VARCHAR},
+      </if>
+      <if test="endTime != null" >
+        #{endTime,jdbcType=VARCHAR},
+      </if>
+      <if test="cardType != null" >
+        #{cardType,jdbcType=INTEGER},
+      </if>
+      <if test="thirdId != null" >
+      	#{thirdId,jdbcType=INTEGER},
+      </if>
+      <if test="creDate != null" >
+        #{creDate,jdbcType=TIMESTAMP}
+      </if>
+      )
+  </insert>
+  <!-- 更新订单状态 -->
+  <update id="updateStatusById" parameterType="map" >
+    update b_score_order
+    set 
+      order_status = #{orderStatus,jdbcType=INTEGER}
+      <if test="payType != null" >
+      	,pay_type = #{payType,jdbcType=INTEGER}
+      </if>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  
+  <!-- 将兑换的卡券Id存入订单记录中 -->
+  <update id="updateUserCardCouponIdById" parameterType="map" >
+    update b_score_order
+    set 
+      user_card_coupon_id = #{userCardCouponId,jdbcType=BIGINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

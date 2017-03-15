@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.linjia.web.dao.AccountcashChangeMapper" >
+  <resultMap id="BaseResultMap" type="com.linjia.web.model.AccountcashChange" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="action" property="action" jdbcType="TINYINT" />
+    <result column="user_id" property="userId" jdbcType="VARCHAR" />
+    <result column="occur" property="occur" jdbcType="DECIMAL" />
+    <result column="cre_date" property="creDate" jdbcType="TIMESTAMP" />
+    <result column="deleted" property="deleted" jdbcType="BIT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, action, user_id, occur, cre_date, deleted
+  </sql>
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from b_accountcash_change
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from b_accountcash_change
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  
+  <insert id="insertSelective" parameterType="com.linjia.web.model.AccountcashChange" >
+    insert into b_accountcash_change
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="action != null" >
+        action,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="occur != null" >
+        occur,
+      </if>
+      <if test="creDate != null" >
+        cre_date,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="action != null" >
+        #{action,jdbcType=TINYINT},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="occur != null" >
+        #{occur,jdbcType=DECIMAL},
+      </if>
+      <if test="creDate != null" >
+        #{creDate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  
+  <select id="countByExample" parameterType="com.linjia.web.model.AccountcashChange" resultType="java.lang.Integer" >
+    select count(*) from b_accountcash_change
+  </select>
+  
+  <update id="updateStatusById" parameterType="map" >
+    update b_accountcash_change
+    set deleted = #{deleted,jdbcType=BIT} 
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

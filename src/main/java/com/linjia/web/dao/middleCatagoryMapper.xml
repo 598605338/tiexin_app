@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.linjia.web.dao.MiddleCatagoryMapper" >
+  <resultMap id="BaseResultMap" type="com.linjia.web.model.MiddleCatagory" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="large_catagory_id" property="largeCatagoryId" jdbcType="INTEGER" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="sort_index" property="sortIndex" jdbcType="INTEGER" />
+    <result column="use_status" property="useStatus" jdbcType="BIT" />
+    <result column="deleted" property="deleted" jdbcType="BIT" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    id, large_catagory_id, name, sort_index, use_status, deleted
+  </sql>
+  <select id="selectByLargeCatagoryId" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from b_middle_catagory
+    where deleted =0 AND use_status = 0 AND large_catagory_id = #{largeCatagoryId,jdbcType=INTEGER}
+    order by sort_index DESC
+  </select>
+</mapper>

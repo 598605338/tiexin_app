@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.linjia.web.dao.TailGoodsClearMapper" >
+  <resultMap id="BaseResultMap" type="com.linjia.web.model.TailGoodsClear" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="type" property="type" jdbcType="INTEGER" />
+    <result column="publish_start_time" property="publishStartTime" jdbcType="TIMESTAMP" />
+    <result column="publish_end_time" property="publishEndTime" jdbcType="TIMESTAMP" />
+    <result column="product_id" property="productId" jdbcType="INTEGER" />
+    <result column="p_code" property="pCode" jdbcType="VARCHAR" />
+    <result column="p_name" property="pName" jdbcType="VARCHAR" />
+    <result column="p_send_type" property="pSendType" jdbcType="INTEGER" />
+    <result column="market_price" property="marketPrice" jdbcType="DECIMAL" />
+    <result column="clear_price" property="clearPrice" jdbcType="DECIMAL" />
+    <result column="quantity" property="quantity" jdbcType="INTEGER" />
+    <result column="p_image_path" property="pImagePath" jdbcType="VARCHAR" />
+    <result column="search_condition" property="searchCondition" jdbcType="INTEGER" />
+    <result column="search_time" property="searchTime" jdbcType="TIMESTAMP" />
+    <result column="mall_support_type" property="mallSupportType" jdbcType="INTEGER" />
+    <result column="mall_id" property="mallId" jdbcType="INTEGER" />
+    <result column="mall_code" property="mallCode" jdbcType="VARCHAR" />
+    <result column="sort_index" property="sortIndex" jdbcType="INTEGER" />
+    <result column="activity_status" property="activityStatus" jdbcType="INTEGER" />
+    <result column="use_status" property="useStatus" jdbcType="BIT" />
+    <result column="cre_date" property="creDate" jdbcType="TIMESTAMP" />
+    <result column="update_date" property="updateDate" jdbcType="TIMESTAMP" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    id, type, publish_start_time, publish_end_time, product_id, p_code, p_name, p_send_type, market_price, 
+    clear_price, quantity, CONCAT('${@com.linjia.constants.Application@SERVER_BASE_PATH}',p_image_path) AS p_image_path, search_condition, search_time, mall_support_type, 
+    mall_id, mall_code, sort_index, activity_status, use_status, cre_date, update_date
+  </sql>
+  
+  <sql id="Base_Column_List_1" >
+    id,type,product_id,p_code,p_name,p_send_type,market_price,clear_price,CONCAT('${@com.linjia.constants.Application@SERVER_BASE_PATH}',p_image_path) AS p_image_path,search_condition,search_time,activity_status
+  </sql>
+  
+   <sql id="Base_Column_List_2" >
+    id,type,product_id,p_code,p_name,p_send_type,market_price,clear_price,CONCAT('${@com.linjia.constants.Application@SERVER_BASE_PATH}',p_image_path) AS p_image_path,publish_start_time,publish_end_time,quantity,activity_status
+  </sql>
+  
+  <!-- 取得每日清仓数据 -->
+  <select id="selectEveryDayClearList" resultMap="BaseResultMap" parameterType="com.linjia.web.query.TailGoodsClearQuery" >
+    select
+    <include refid="Base_Column_List_1" />
+    from b_tail_goods_clear
+    where use_status = 0
+    AND type =1
+    <!--AND search_time <= NOW()-->
+    <![CDATA[
+    AND DATE_FORMAT(CURDATE(),'%Y-%m-%d 22:30:00') > DATE_FORMAT(NOW(),'%Y-%m-%d %T')
+    ]]>
+    AND DATE(search_time) = CURDATE()
+    AND activity_status = 1
+    AND 
+    CASE WHEN mall_support_type =2 THEN FIND_IN_SET(#{mallCode,jdbcType=VARCHAR},mall_code) ELSE 1 = 1 END
+    order by sort_index
+  </select>
+  
+  <!-- 取得本期清仓数据 -->
+  <select id="selectCurrentClearList" resultMap="BaseResultMap" parameterType="com.linjia.web.query.TailGoodsClearQuery" >
+    select
+    <include refid="Base_Column_List_2" />
+    from b_tail_goods_clear
+    where use_status = 0
+    AND type =2
+    AND <![CDATA[ publish_start_time < NOW() AND publish_end_time > NOW() ]]>
+    AND activity_status = 1
+    AND 
+    CASE WHEN mall_support_type =2 THEN FIND_IN_SET(#{mallCode,jdbcType=VARCHAR},mall_code) ELSE 1 = 1 END
+    order by sort_index
+  </select>
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from b_tail_goods_clear
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  
+  <select id="countByExample" parameterType="com.linjia.web.model.TailGoodsClear" resultType="java.lang.Integer" >
+    select count(*) from b_tail_goods_clear
+  </select>
+  
+  <!-- 更新使用使用状态:0启用；1禁用  和  活动状态:1、销售中；2、已售罄；3、已结束 -->
+  <update id="updateActivityStatusByPrimaryKey" parameterType="map" >
+    update b_tail_goods_clear
+    set 
+      activity_status = #{activityStatus,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  
+  <!-- 根据商品id，查询商品是否正在参加清仓活动 -->
+  <select id="selectByProductId" resultMap="BaseResultMap" parameterType="com.linjia.web.query.TailGoodsClearQuery" >
+    select
+    <include refid="Base_Column_List" />
+    from b_tail_goods_clear
+    where use_status = 0
+    AND product_id =#{productId,jdbcType=INTEGER}
+    AND ((<![CDATA[ publish_start_time < NOW() AND publish_end_time > NOW() ]]>) AND (<![CDATA[ search_time < NOW() ]]>
+    AND DATE(search_time) = CURDATE()))
+    AND activity_status = 1
+    AND 
+    CASE WHEN mall_support_type =2 THEN FIND_IN_SET(#{mallCode,jdbcType=VARCHAR},mall_code) ELSE 1 = 1 END
+  </select>
+  
+</mapper>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	namespace：必须与对应的接口全类名一致
+	id:必须与对应接口的某个对应的方法名一致
+	
+ -->
+<mapper namespace="com.linjia.web.dao.PaoDanRecordMapper">
+	<!-- 缓存 -->  
+   <!--  <cache eviction="LRU" type="com.linjia.core.feature.cache.MybatisRedisCache" />  -->
+
+	<insert id="insertPaoDan" parameterType="com.linjia.web.model.PaoDanRecord" useGeneratedKeys="true" keyProperty="id">
+		insert into b_paodan_record(order_id,order_type,status,paodan_type,create_time) 
+		values(#{order_id},#{order_type},#{status},#{paodan_type},SYSDATE())
+	</insert>
+	
+	<delete id="deletePaoDan" parameterType="int">
+		update b_paodan_record
+		set deleted=1
+  		where id=#{id} 
+	</delete>
+	
+	<delete id="deletePaoDanByOrderId" parameterType="long">
+		delete from b_paodan_record
+  		where order_id=#{order_id} 
+	</delete>
+	
+	<!-- 更新信息 -->
+	<update id="updatePaoDan" parameterType="com.linjia.web.model.PaoDanRecord">
+		update b_paodan_record
+		<set>
+		<if test="order_id !=null">order_id=#{order_id},</if>
+		<if test="order_type !=null">order_type=#{order_type},</if>
+		<if test="status !=null"> status=#{status},</if>
+		<if test="paodan_type !=null"> paodan_type=#{paodan_type},</if>
+		<if test="deleted !=null"> deleted=#{deleted},</if>
+		update_time=SYSDATE()
+		</set>	
+		where id=#{id}
+	</update>
+	
+	<!-- 根据id和类型查询订单详情-->
+	<select id="selectPaoDan" parameterType="map" resultType="com.linjia.web.model.PaoDanRecord">
+		select id,order_id,order_type,status,paodan_type,create_time,update_time
+		from  b_paodan_record 
+		where order_id=#{order_id} and order_type=#{order_type} and paodan_type=#{paodan_type} and deleted=0
+	</select>
+	
+	<select id="selectPaoDanList" parameterType="com.linjia.web.query.PaoDanRecordQuery" resultType="com.linjia.web.model.PaoDanRecord">
+		select id,order_id,order_type,status,paodan_type,create_time,update_time
+		from  b_paodan_record 
+		where 1=1 
+		<if test="paodan_type !=null and paodan_type !='' ">
+			and paodan_type=#{paodan_type}
+		</if>
+		<if test="status !=null and status !='' ">
+			and status=#{status}
+		</if>
+		<if test="order_type !=null and order_type !='' ">
+			and order_type=#{order_type}
+		</if>
+		<if test="deleted !=null and deleted !='' ">
+			and deleted=#{deleted}
+		</if>
+		<if test="timeFlag !=null and timeFlag !='' ">
+			and create_time between date_format('2017-02-09 15:01:22', '%Y-%m-%d %H:%i:%S') and date_format('2017-02-09 15:01:43', '%Y-%m-%d %H:%i:%S')
+		</if>
+		order by order_id,paodan_type asc
+		<if test="queryFlag !=null and queryFlag !='' ">
+    		limit #{startIndex},#{pageSize}
+		</if>
+	</select>
+	
+</mapper>

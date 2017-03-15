@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.linjia.web.dao.AccountcashdepositRecordMapper" >
+  <resultMap id="BaseResultMap" type="com.linjia.web.model.AccountcashdepositRecord" >
+    <id column="tranId" property="tranId" jdbcType="INTEGER" />
+    <result column="accountAccessCode" property="accountaccesscode" jdbcType="VARCHAR" />
+    <result column="accountAccessType" property="accountaccesstype" jdbcType="INTEGER" />
+    <result column="orgCode" property="orgcode" jdbcType="VARCHAR" />
+    <result column="occur" property="occur" jdbcType="DECIMAL" />
+    <result column="realPay" property="realpay" jdbcType="DECIMAL" />
+    <result column="tranTime" property="trantime" jdbcType="TIMESTAMP" />
+    <result column="xid" property="xid" jdbcType="BIGINT" />
+    <result column="tranStatus" property="transtatus" jdbcType="INTEGER" />
+    <result column="transaction_id" property="transactionId" jdbcType="VARCHAR" />
+    <result column="action" property="action" jdbcType="INTEGER" />
+    <result column="order_group_id" property="orderGroupId" jdbcType="BIGINT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    tranId, accountAccessCode, accountAccessType, orgCode, occur, realPay, tranTime, 
+    xid, tranStatus, transaction_id, action, order_group_id
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from b_accountcashdeposit_record
+    where tranId = #{tranId,jdbcType=INTEGER}
+  </select>
+  <insert id="insertSelective" useGeneratedKeys="true" keyProperty="tranId" parameterType="com.linjia.web.model.AccountcashdepositRecord" >
+    insert into b_accountcashdeposit_record
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="accountaccesscode != null" >
+        accountAccessCode,
+      </if>
+      <if test="accountaccesstype != null" >
+        accountAccessType,
+      </if>
+      <if test="orgcode != null" >
+        orgCode,
+      </if>
+      <if test="occur != null" >
+        occur,
+      </if>
+      <if test="realpay != null" >
+        realPay,
+      </if>
+      <if test="trantime != null" >
+        tranTime,
+      </if>
+      <if test="xid != null" >
+        xid,
+      </if>
+      <if test="action != null" >
+        action,
+      </if>
+      <if test="orderGroupId != null" >
+        order_group_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="accountaccesscode != null" >
+        #{accountaccesscode,jdbcType=VARCHAR},
+      </if>
+      <if test="accountaccesstype != null" >
+        #{accountaccesstype,jdbcType=INTEGER},
+      </if>
+      <if test="orgcode != null" >
+        #{orgcode,jdbcType=VARCHAR},
+      </if>
+      <if test="occur != null" >
+        #{occur,jdbcType=DECIMAL},
+      </if>
+      <if test="realpay != null" >
+        #{realpay,jdbcType=DECIMAL},
+      </if>
+      <if test="trantime != null" >
+        #{trantime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="xid != null" >
+        #{xid,jdbcType=BIGINT},
+      </if>
+      <if test="action != null" >
+        #{action,jdbcType=INTEGER},
+      </if>
+      <if test="orderGroupId != null" >
+        #{orderGroupId,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+  
+  <update id="updateByPrimaryKeySelective" parameterType="com.linjia.web.model.AccountcashdepositRecord" >
+    update b_accountcashdeposit_record
+    set tranStatus = #{transtatus,jdbcType=INTEGER},
+    transaction_id = #{transactionId,jdbcType=VARCHAR}
+    where tranId = #{tranId,jdbcType=INTEGER}
+  </update>
+  
+  <!-- 查询订单是否已经退款成功 -->
+  <select id="selectRefundByOrderGroupId" resultType="java.lang.Integer" parameterType="java.lang.Long">
+    SELECT count(*) FROM `b_accountcashdeposit_record` WHERE order_group_id = #{orderGroupId,jdbcType=BIGINT} AND action =3 AND tranStatus =1
+  </select>
+</mapper>

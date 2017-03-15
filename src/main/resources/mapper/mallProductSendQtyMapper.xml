@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.linjia.web.dao.MallProductSendQtyMapper" >
+  <resultMap id="BaseResultMap" type="com.linjia.web.model.MallProductSendQty" >
+    <id column="mall_code" property="mallCode" jdbcType="VARCHAR" />
+    <id column="p_code" property="pCode" jdbcType="VARCHAR" />
+    <result column="quantity" property="quantity" jdbcType="INTEGER" />
+    <result column="update_date" property="updateDate" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    mall_code, p_code, quantity, update_date
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="com.linjia.web.model.MallProductSendQty" >
+    select 
+    <include refid="Base_Column_List" />
+    from b_mall_product_send_qty
+    where mall_code = #{mallCode,jdbcType=VARCHAR}
+      and p_code = #{pCode,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="com.linjia.web.model.MallProductSendQty" >
+    delete from b_mall_product_send_qty
+    where mall_code = #{mallCode,jdbcType=VARCHAR}
+      and p_code = #{pCode,jdbcType=VARCHAR}
+  </delete>
+  
+  <!-- 插入或更新 -->
+  <insert id="insertOrUpdate" parameterType="com.linjia.web.model.MallProductSendQty" >
+  	<selectKey keyProperty="count" resultType="int" order="BEFORE">
+		select count(*) from b_mall_product_send_qty where mall_code = #{mallCode,jdbcType=VARCHAR} and p_code = #{pCode,jdbcType=VARCHAR}
+	</selectKey>
+  	<if test="count > 0">
+  		update 
+  		b_mall_product_send_qty
+    	set 
+    	quantity = #{quantity,jdbcType=INTEGER},
+      	update_date = #{updateDate,jdbcType=TIMESTAMP}
+    	where
+    	mall_code = #{mallCode,jdbcType=VARCHAR}
+      	and p_code = #{pCode,jdbcType=VARCHAR}
+  	</if>
+  	<if test="count==0">
+  		insert into b_mall_product_send_qty (
+  		mall_code, 
+  		p_code, 
+  		quantity, 
+      	update_date
+      	) values (
+      	#{mallCode,jdbcType=VARCHAR}, 
+      	#{pCode,jdbcType=VARCHAR}, 
+      	#{quantity,jdbcType=INTEGER}, 
+      	#{updateDate,jdbcType=TIMESTAMP}
+      	)
+  	</if>
+  </insert>
+</mapper>

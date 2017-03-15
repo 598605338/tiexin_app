@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	namespace：必须与对应的接口全类名一致
+	id:必须与对应接口的某个对应的方法名一致
+	
+ -->
+<mapper namespace="com.linjia.web.dao.MessageMapper">
+	<!-- 缓存 -->  
+   <!--  <cache eviction="LRU" type="com.linjia.core.feature.cache.MybatisRedisCache" />  -->
+
+	<insert id="insertMessage" parameterType="MyMessage" useGeneratedKeys="true" keyProperty="id">
+		insert into b_mobile_checkcode(mobile,checkcode,content,createtime,endtime) 
+		values(#{mobile},#{checkcode},#{content},SYSDATE(),DATE_ADD(SYSDATE(),INTERVAL 5 MINUTE))
+	</insert>
+	
+	<delete id="deleteMessage" parameterType="Integer">
+		delete from b_mobile_checkcode
+  		where 1=1 and id=#{id}
+	</delete>
+	
+	<!-- 根据订单Id查询订单详情-->
+	<select id="selectMessage" parameterType="java.lang.String" resultType="MyMessage">
+		select id,mobile,checkcode,content,createtime,endtime
+		from  b_mobile_checkcode where mobile=#{mobile} 
+		order by createtime desc  limit 1
+	</select>
+	
+</mapper>

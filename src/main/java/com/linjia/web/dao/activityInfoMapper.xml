@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace：必须与对应的接口全类名一致 id:必须与对应接口的某个对应的方法名一致 -->
+<mapper namespace="com.linjia.web.dao.ActivityInfoMapper">
+	<!-- 缓存 -->
+	<!-- <cache eviction="LRU" type="com.linjia.core.feature.cache.MybatisRedisCache" 
+		/> -->
+
+	<insert id="insertActInfo" parameterType="com.linjia.web.model.ActivityInfo"
+		useGeneratedKeys="true" keyProperty="activity_id">
+		insert into
+		b_activity_info(activity_name,activity_type,start_time,end_time,priority,discount,mall_codes,promotion_label,status,if_add,if_useCardCoupons,if_useCashCoupons,if_first_work,promotion_condition_1,promotion_condition_2,fullReduceMoney,selector_goods,create_time)
+		values(#{activity_name},#{activity_type},#{start_time},#{end_time},#{priority},#{discount},#{mall_codes},#{promotion_label},#{status},#{if_add},#{if_useCardCoupons},#{if_useCashCoupons},#{if_first_work},#{promotion_condition_1},#{promotion_condition_2},#{fullReduceMoney},#{selector_goods},SYSDATE())
+	</insert>
+
+	<update id="updateActInfoById" parameterType="com.linjia.web.model.ActivityInfo">
+		update b_activity_info
+		<set>
+			<if test="activity_name !=null">
+				activity_name=#{activity_name},
+			</if>
+			<if test="activity_type !=null">
+				activity_type=#{activity_type},
+			</if>
+			<if test="start_time !=null">
+				start_time=#{start_time},
+			</if>
+			<if test="end_time !=null">
+				end_time=#{end_time},
+			</if>
+			<if test="priority !=null">
+				priority=#{priority},
+			</if>
+			<if test="discount !=null">
+				discount=#{discount},
+			</if>
+			<if test="mall_codes !=null">
+				mall_codes=#{mall_codes},
+			</if>
+			<if test="promotion_label !=null">
+				promotion_label=#{promotion_label},
+			</if>
+			<if test="status !=null">
+				status=#{status},
+			</if>
+			<if test="if_useCardCoupons !=null">
+				if_useCardCoupons=#{if_useCardCoupons},
+			</if>
+			<if test="if_useCashCoupons !=null">
+				if_useCashCoupons=#{if_useCashCoupons},
+			</if>
+			<if test="if_first_work !=null">
+				if_first_work=#{if_first_work},
+			</if>
+			<if test="promotion_condition_1 !=null">
+				promotion_condition_1=#{promotion_condition_1},
+			</if>
+			<if test="promotion_condition_2 !=null">
+				promotion_condition_2=#{promotion_condition_2},
+			</if>
+			<if test="fullReduceMoney !=null">
+				fullReduceMoney=#{fullReduceMoney},
+			</if>
+			<if test="if_add !=null">
+				if_add=#{if_add},
+			</if>
+			<if test="selector_goods !=null">
+				selector_goods=#{selector_goods},
+			</if>
+			update_time=SYSDATE()
+		</set>
+		where activity_id=#{activity_id}
+	</update>
+
+	<delete id="deleteActInfoById" parameterType="int">
+		delete from
+		b_activity_info where activity_id=#{activity_id}
+	</delete>
+
+	<!-- mybsits_config中配置的alias类别名,也可直接配置resultType为类路劲 -->
+	<select id="selectActInfoById" parameterType="int"
+		resultType="com.linjia.web.model.ActivityInfo">
+		select
+		activity_id,activity_name,activity_type,start_time,end_time,priority,discount,mall_codes,promotion_label,status,if_useCardCoupons,if_add,if_useCashCoupons,create_time,update_time,if_first_work,promotion_condition_1,promotion_condition_2,fullReduceMoney,selector_goods
+		from b_activity_info where activity_id=#{activity_id}
+	</select>
+
+	<select id="selectActInfoAll" resultType="com.linjia.web.model.ActivityInfo"
+		parameterType="map">
+		select
+		activity_id,activity_name,activity_type,start_time,end_time,priority,discount,mall_codes,promotion_label,status,if_useCardCoupons,if_add,if_useCashCoupons,create_time,update_time,if_first_work,promotion_condition_1,promotion_condition_2,fullReduceMoney,selector_goods
+		from b_activity_info where 1=1
+		<if test="activity_name !=null">
+			and activity_name like
+			CONCAT(CONCAT('%',#{activity_name}),'%')
+		</if>
+		<if test="status !=null">
+			and status=#{status}
+		</if>
+	</select>
+
+	<!--根据商品code查询当前时间参加的活动信息  -->
+	<select id="selectActInfoByCurrTime" resultType="com.linjia.web.model.ActivityInfo" parameterType="map">
+		SELECT
+		bai.activity_id,bai.activity_name,bai.activity_type,bai.start_time,bai.end_time,bai.priority,bai.discount,bai.mall_codes,bai.promotion_label,bai.if_add,bai.if_first_work,
+		bai.if_useCashCoupons,bai.promotion_condition_1,bai.promotion_condition_2,bai.fullReduceMoney,bap.product_id,bap.p_code,bap.p_send_type
+		FROM
+		b_activity_info bai
+		LEFT JOIN b_activity_product bap ON bai.activity_id = bap.activity_id
+		WHERE
+		bai.STATUS = 1
+		<![CDATA[AND start_time <= #{currentTime,jdbcType=TIMESTAMP} AND end_time >= #{currentTime,jdbcType=TIMESTAMP} ]]>
+		<if test="productId != null">
+			AND ( bai.selector_goods = 0 OR bap.product_id = #{productId,jdbcType=INTEGER})
+		</if>
+		<if test="mallCode != null">
+		AND (bai.mall_codes IS NULL OR FIND_IN_SET(#{mallCode,jdbcType=VARCHAR},mall_codes))
+		</if>
+		ORDER BY
+		activity_type,
+		priority DESC
+	</select>
+	
+	<!--查询当前时间订单的相关活动信息  -->
+	<select id="selectOrderActInfoByCurrTime" resultType="com.linjia.web.model.ActivityInfo" parameterType="map">
+		SELECT activity_id,activity_name,activity_type,start_time,end_time,priority,discount,mall_codes,promotion_label,status,if_useCardCoupons,if_add,if_useCashCoupons,create_time,update_time,if_first_work,promotion_condition_1,promotion_condition_2,fullReduceMoney,selector_goods
+		FROM `b_activity_info` where STATUS = 1
+		AND (activity_type = 5 
+		<![CDATA[ OR (activity_type =1 && promotion_condition_1 > 0)]]>
+		)
+		ORDER BY
+		activity_type,
+		priority DESC
+	</select>
+
+	<!--查询当前时间针对全部商品的折扣活动  -->
+	<select id="selectDiscountActAllProductByNow" resultType="com.linjia.web.model.ActivityInfo" parameterType="java.lang.String">
+		select
+		activity_id,activity_name,activity_type,start_time,end_time,priority,discount,mall_codes,promotion_label,status,if_useCardCoupons,if_add,if_useCashCoupons,create_time,update_time,if_first_work,promotion_condition_1,promotion_condition_2,fullReduceMoney,selector_goods
+		from b_activity_info where activity_type=2 AND STATUS = 1 AND selector_goods =0
+		<![CDATA[AND start_time <= now() AND end_time >= now() ]]>
+		AND (mall_codes IS NULL OR FIND_IN_SET(#{mallCode,jdbcType=VARCHAR},mall_codes))
+		ORDER BY discount
+		Limit 1
+	</select>
+</mapper>

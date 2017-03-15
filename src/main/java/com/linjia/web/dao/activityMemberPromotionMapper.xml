@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.linjia.web.dao.ActivityMemberPromotionMapper" >
+  <resultMap id="BaseResultMap" type="com.linjia.web.model.ActivityMemberPromotion" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="activity_type" property="activityType" jdbcType="INTEGER" />
+    <result column="activity_name" property="activityName" jdbcType="VARCHAR" />
+    <result column="start_time" property="startTime" jdbcType="TIMESTAMP" />
+    <result column="end_time" property="endTime" jdbcType="TIMESTAMP" />
+    <result column="prize_type" property="prizeType" jdbcType="INTEGER" />
+    <result column="prize_name" property="prizeName" jdbcType="VARCHAR" />
+    <result column="prize_num" property="prizeNum" jdbcType="INTEGER" />
+    <result column="card_coupon_id" property="cardCouponId" jdbcType="BIGINT" />
+    <result column="sort_index" property="sortIndex" jdbcType="INTEGER" />
+    <result column="use_status" property="useStatus" jdbcType="BIT" />
+    <result column="deleted" property="deleted" jdbcType="BIT" />
+    <result column="cre_date" property="creDate" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, activity_type, activity_name, start_time, end_time, prize_type, prize_name, prize_num, 
+    card_coupon_id, sort_index, use_status, deleted, cre_date
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from b_activity_member_promotion
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  
+  <!-- 查询当前时间进行的促销活动 -->
+  <select id="selectByCurrentTime" resultMap="BaseResultMap" >
+    select 
+    <include refid="Base_Column_List" />
+    from b_activity_member_promotion
+    where use_status = 0 AND deleted =0 AND prize_num > 0
+    <![CDATA[ AND start_time <= now() AND end_time > now()]]>
+  </select>
+  
+  <!-- 更新促销活动剩余的奖品数量 -->
+  <update id="updatePrizeNumById" parameterType="map" >
+    update 
+    b_activity_member_promotion
+    set prize_num = #{prizeNum,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from b_activity_member_promotion
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+</mapper>

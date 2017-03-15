@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.linjia.web.dao.CardCouponMapper" >
+  <resultMap id="BaseResultMap" type="com.linjia.web.model.CardCoupon" >
+    <id column="card_id" property="cardId" jdbcType="BIGINT" />
+    <result column="creator" property="creator" jdbcType="VARCHAR" />
+    <result column="createTime" property="createtime" jdbcType="TIMESTAMP" />
+    <result column="card_name" property="cardName" jdbcType="VARCHAR" />
+    <result column="card_pic" property="cardPic" jdbcType="VARCHAR" />
+    <result column="card_type" property="cardType" jdbcType="INTEGER" />
+    <result column="provide_type" property="provideType" jdbcType="INTEGER" />
+    <result column="start_time" property="startTime" jdbcType="TIMESTAMP" />
+    <result column="end_time" property="endTime" jdbcType="TIMESTAMP" />
+    <result column="code_type" property="codeType" jdbcType="SMALLINT" />
+    <result column="time_type" property="timeType" jdbcType="INTEGER" />
+    <result column="use_start_time" property="useStartTime" jdbcType="TIMESTAMP" />
+    <result column="use_end_time" property="useEndTime" jdbcType="TIMESTAMP" />
+    <result column="valid_day" property="validDay" jdbcType="INTEGER" />
+    <result column="valid_begin_day" property="validBeginDay" jdbcType="INTEGER" />
+    <result column="total_num" property="totalNum" jdbcType="INTEGER" />
+    <result column="discount" property="discount" jdbcType="DECIMAL" />
+    <result column="wncode" property="wncode" jdbcType="VARCHAR" />
+    <result column="amount" property="amount" jdbcType="DECIMAL" />
+    <result column="limit_money" property="limitMoney" jdbcType="DECIMAL" />
+    <result column="inter_note" property="interNote" jdbcType="VARCHAR" />
+    <result column="privilege_description" property="privilegeDescription" jdbcType="VARCHAR" />
+    <result column="template_pic" property="templatePic" jdbcType="VARCHAR" />
+    <result column="code_flg" property="codeFlg" jdbcType="INTEGER" />
+    <result column="create_code_stat" property="createCodeStat" jdbcType="INTEGER" />
+    <result column="getNum" property="getnum" jdbcType="INTEGER" />
+    <result column="useNum" property="usenum" jdbcType="INTEGER" />
+    <result column="postID" property="postid" jdbcType="INTEGER" />
+    <result column="salePrice" property="saleprice" jdbcType="DECIMAL" />
+    <result column="unitID" property="unitid" jdbcType="INTEGER" />
+    <result column="unitName" property="unitname" jdbcType="VARCHAR" />
+    <result column="goodsSelectorID" property="goodsselectorid" jdbcType="INTEGER" />
+    <result column="userSelectorID" property="userselectorid" jdbcType="INTEGER" />
+    <result column="useFlg" property="useflg" jdbcType="INTEGER" />
+    <result column="description" property="description" jdbcType="VARCHAR" />
+    <result column="is_generate" property="isGenerate" jdbcType="INTEGER" />
+    <result column="repeat_count" property="repeatCount" jdbcType="INTEGER" />
+    <result column="reset_count" property="resetCount" jdbcType="INTEGER" />
+    <result column="mall_support_type" property="mallSupportType" jdbcType="INTEGER" />
+    <result column="merchant_support_type" property="merchantSupportType" jdbcType="INTEGER" />
+    <result column="can_give_friend" property="canGiveFriend" jdbcType="INTEGER" />
+    <result column="is_mobile_verify" property="isMobileVerify" jdbcType="INTEGER" />
+    <result column="verify_type" property="verifyType" jdbcType="INTEGER" />
+    <result column="merchantID" property="merchantid" jdbcType="INTEGER" />
+    <result column="merchantName" property="merchantname" jdbcType="VARCHAR" />
+    <result column="merchant_flg" property="merchantFlg" jdbcType="INTEGER" />
+    <result column="activity_flg" property="activityFlg" jdbcType="INTEGER" />
+    <result column="b2c_usable" property="b2cUsable" jdbcType="INTEGER" />
+    <result column="wap_usable" property="wapUsable" jdbcType="INTEGER" />
+    <result column="app_usable" property="appUsable" jdbcType="INTEGER" />
+    <result column="pad_usable" property="padUsable" jdbcType="INTEGER" />
+    <result column="card_audit_status" property="cardAuditStatus" jdbcType="INTEGER" />
+    <result column="mallareaID" property="mallareaid" jdbcType="INTEGER" />
+    <result column="mallID" property="mallid" jdbcType="INTEGER" />
+    <result column="mallName" property="mallname" jdbcType="VARCHAR" />
+    <result column="review_id" property="reviewId" jdbcType="INTEGER" />
+    <result column="review_no_through_reason" property="reviewNoThroughReason" jdbcType="VARCHAR" />
+    <result column="external_no" property="externalNo" jdbcType="VARCHAR" />
+    <result column="is_to_wechat" property="isToWechat" jdbcType="INTEGER" />
+    <result column="to_wechat_status" property="toWechatStatus" jdbcType="INTEGER" />
+    <result column="is_to_alipay" property="isToAlipay" jdbcType="INTEGER" />
+    <result column="to_alipay_status" property="toAlipayStatus" jdbcType="INTEGER" />
+    <result column="support_condition" property="supportCondition" jdbcType="INTEGER" />
+    <result column="selectorID_json" property="selectoridJson" jdbcType="VARCHAR" />
+    <result column="template_code" property="templateCode" jdbcType="VARCHAR" />
+    <result column="user_id" property="cardCouponUserId" jdbcType="VARCHAR" />
+    <result column="userCardCouponId" property="userCardCouponId" jdbcType="BIGINT" />
+    <result column="receive_time" property="receiveTime" jdbcType="TIMESTAMP" />
+    <result column="use_status" property="useStatus" jdbcType="TIMESTAMP" />
+    <result column="image_path" property="imagePath" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+    card_id, creator, createTime, card_name, card_pic, card_type, provide_type, 
+    start_time, end_time, code_type, time_type, use_start_time, use_end_time, valid_day, 
+    valid_begin_day, total_num, discount, wncode, amount, limit_money, inter_note, privilege_description, 
+    template_pic, code_flg, create_code_stat, getNum, useNum, postID, salePrice, unitID, 
+    unitName, goodsSelectorID, userSelectorID, useFlg, description, is_generate, repeat_count, 
+    reset_count, mall_support_type, merchant_support_type, can_give_friend, is_mobile_verify, 
+    verify_type, merchantID, merchantName, merchant_flg, activity_flg, b2c_usable, wap_usable, 
+    app_usable, pad_usable, card_audit_status, mallareaID, mallID, mallName, review_id, 
+    review_no_through_reason, external_no, is_to_wechat, to_wechat_status, is_to_alipay, 
+    to_alipay_status, support_condition, selectorID_json,template_code
+  </sql>
+  
+  <sql id="UserCardCoupon_Column_List" >
+    bucc.id AS userCardCouponId, bucc.user_id AS cardCouponUserId, cc.card_id,bucc.receive_time, bucc.use_status, cc.card_name,cc.card_type, cc.provide_type, cc.code_type,cc.valid_day,cc.discount,cc.wncode,cc.amount,cc.limit_money,cc.template_pic,cc.code_flg,cc.create_code_stat,cc.support_condition,  bucc.use_start_time, bucc.use_end_time, 
+    cc.description
+  </sql>
+  
+  <!-- 查询用户未过期的优惠券 -->
+  <select id="selectNotExpiredByUserId" resultMap="BaseResultMap" parameterType="com.linjia.web.query.UserCardCouponQuery" >
+    (SELECT <include refid="UserCardCoupon_Column_List" /> ,NULL AS image_path
+    FROM b_user_card_coupon bucc INNER JOIN card_coupon cc ON bucc.card_coupon_id = cc.card_id
+    WHERE bucc.deleted = 0 AND bucc.user_id=#{userId,jdbcType=VARCHAR} AND bucc.use_status=#{useStatus,jdbcType=INTEGER} AND cc.useFlg = 1 AND cc.card_type != 1
+    AND (cc.mall_support_type =1 OR (cc.mall_support_type =2 AND FIND_IN_SET(#{mallCode,jdbcType=VARCHAR},cc.mall_code)))
+    <![CDATA[ AND bucc.use_end_time > NOW() ]]>
+    )
+    UNION 
+    (SELECT <include refid="UserCardCoupon_Column_List" /> ,CONCAT('${@com.linjia.constants.Application@SERVER_BASE_PATH}',bp.image_path) AS image_path
+    FROM b_user_card_coupon bucc 
+    INNER JOIN card_coupon cc ON bucc.card_coupon_id = cc.card_id
+    INNER JOIN card_coupon_product ccp ON bucc.card_coupon_id = ccp.card_coupon_id
+    INNER JOIN b_product bp ON ccp.product_id = bp.id
+    WHERE bucc.deleted = 0 AND bucc.user_id=#{userId,jdbcType=VARCHAR} AND bucc.use_status=#{useStatus,jdbcType=INTEGER} AND cc.useFlg = 1 AND cc.card_type = 1
+    AND (cc.mall_support_type =1 OR (cc.mall_support_type =2 AND FIND_IN_SET(#{mallCode,jdbcType=VARCHAR},cc.mall_code)))
+    <![CDATA[ AND bucc.use_end_time > NOW() ]]>
+    )
+    order by userCardCouponId desc
+    limit #{startIndex},#{pageSize}
+  </select>
+  
+  <!-- 查询用户在本次订单中能使用的优惠券 -->
+  <select id="selectCanUsedByUserId" resultMap="BaseResultMap" parameterType="com.linjia.web.query.UserCardCouponQuery" >
+    SELECT <include refid="UserCardCoupon_Column_List" /> 
+    FROM b_user_card_coupon bucc INNER JOIN card_coupon cc ON bucc.card_coupon_id = cc.card_id
+    WHERE bucc.deleted = 0 AND bucc.user_id=#{userId,jdbcType=VARCHAR} AND bucc.use_status=#{useStatus,jdbcType=INTEGER} AND cc.useFlg = 1
+    AND (cc.mall_support_type =1 OR (cc.mall_support_type =2 AND FIND_IN_SET(#{mallCode,jdbcType=VARCHAR},cc.mall_code)))
+    <!-- 针对productIds的优惠券 -->
+    AND (cc.selectorID_json is null 
+    <foreach collection="productCodes" item="productCode">
+    OR FIND_IN_SET(#{productCode},cc.selectorID_json) 
+    </foreach>
+    )
+    <![CDATA[ AND bucc.use_end_time > NOW() AND bucc.use_start_time < NOW() ]]>
+    order by bucc.id desc
+    limit #{startIndex},#{pageSize}
+  </select>
+  
+  <!-- 查询用户已过期的优惠券 -->
+  <select id="selectExpiredByUserId" resultMap="BaseResultMap" parameterType="com.linjia.web.query.UserCardCouponQuery" >
+    SELECT <include refid="UserCardCoupon_Column_List" /> 
+    FROM b_user_card_coupon bucc INNER JOIN card_coupon cc ON bucc.card_coupon_id = cc.card_id
+    WHERE bucc.deleted = 0 AND bucc.user_id=#{userId,jdbcType=VARCHAR} AND bucc.use_status=#{useStatus,jdbcType=INTEGER} AND cc.useFlg = 1
+    <![CDATA[ AND bucc.use_end_time < NOW() ]]>
+    order by bucc.id desc
+    limit #{startIndex},#{pageSize}
+  </select>
+  
+  <!-- 查询用户已使用的优惠券 -->
+  <select id="selectUsedByUserId" resultMap="BaseResultMap" parameterType="com.linjia.web.query.UserCardCouponQuery" >
+    SELECT <include refid="UserCardCoupon_Column_List" /> 
+    FROM b_user_card_coupon bucc INNER JOIN card_coupon cc ON bucc.card_coupon_id = cc.card_id
+    WHERE bucc.deleted = 0 AND bucc.user_id=#{userId,jdbcType=VARCHAR} AND bucc.use_status IN(1,2) 
+    order by bucc.update_date desc
+    limit #{startIndex},#{pageSize}
+  </select>
+  
+  <!-- 校验用户使用优惠券的合法性 -->
+  <select id="checkCouponByUserCardCouponId" resultMap="BaseResultMap" parameterType="com.linjia.web.query.UserCardCouponQuery" >
+    SELECT <include refid="UserCardCoupon_Column_List" /> 
+    FROM b_user_card_coupon bucc INNER JOIN card_coupon cc ON bucc.card_coupon_id = cc.card_id
+    WHERE bucc.deleted = 0 AND bucc.user_id=#{userId,jdbcType=VARCHAR} AND bucc.use_status=#{useStatus,jdbcType=INTEGER} AND cc.useFlg = 1
+    AND bucc.id = #{id,jdbcType=BIGINT}
+    <![CDATA[ AND bucc.use_end_time > NOW() AND bucc.use_start_time < NOW() ]]>
+  </select>
+  
+  
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.linjia.web.model.CardCoupon" >
+    select
+    <include refid="Base_Column_List" />
+    from card_coupon
+  </select>
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+   
+    from card_coupon
+    where card_id = #{cardId,jdbcType=BIGINT}
+  </select>
+  
+  <select id="cardCheckByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    card_id, mall_support_type, mall_code, selectorID_json
+    from card_coupon
+    where card_id = #{cardId,jdbcType=BIGINT}
+  </select>
+  
+  <!-- 更新优惠券剩余数量 -->
+  <update id="updateTotalNumByCardId" parameterType="map" >
+    update card_coupon
+    set getNum = getNum + #{minusNum,jdbcType=INTEGER}
+    where card_id = #{cardId,jdbcType=BIGINT}
+  </update>
+</mapper>

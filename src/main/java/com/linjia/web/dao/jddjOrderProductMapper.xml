@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.linjia.web.dao.JddjOrderProductMapper" >
+  <resultMap id="BaseResultMap" type="com.linjia.web.thirdService.jddj.model.OrderProductDTO" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="orderId" property="orderId" jdbcType="BIGINT" />
+    <result column="adjustId" property="adjustId" jdbcType="BIGINT" />
+    <result column="skuId" property="skuId" jdbcType="INTEGER" />
+    <result column="skuName" property="skuName" jdbcType="VARCHAR" />
+    <result column="skuIdIsv" property="skuIdIsv" jdbcType="VARCHAR" />
+    <result column="skuSpuId" property="skuSpuId" jdbcType="BIGINT" />
+    <result column="skuJdPrice" property="skuJdPrice" jdbcType="BIGINT" />
+    <result column="skuCount" property="skuCount" jdbcType="INTEGER" />
+    <result column="isGift" property="isGift" jdbcType="BIT" />
+    <result column="adjustMode" property="adjustMode" jdbcType="INTEGER" />
+    <result column="upcCode" property="upcCode" jdbcType="VARCHAR" />
+    <result column="artificerId" property="artificerId" jdbcType="INTEGER" />
+    <result column="artificerName" property="artificerName" jdbcType="VARCHAR" />
+    <result column="skuStorePrice" property="skuStorePrice" jdbcType="BIGINT" />
+    <result column="skuCostPrice" property="skuCostPrice" jdbcType="BIGINT" />
+    <result column="promotionType" property="promotionType" jdbcType="INTEGER" />
+    <result column="skuTaxRate" property="skuTaxRate" jdbcType="VARCHAR" />
+    <result column="promotionId" property="promotionId" jdbcType="BIGINT" />
+    <result column="canteenMoney" property="canteenMoney" jdbcType="BIGINT" />
+    <result column="outSkuId" property="outSkuId" jdbcType="VARCHAR" />
+    <result column="upc" property="upc" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, orderId, adjustId, skuId, skuName, skuIdIsv, skuSpuId, ROUND(skuJdPrice / 100, 2) AS skuJdPrice, skuCount, 
+    isGift, adjustMode, upcCode, artificerId, artificerName, ROUND(skuStorePrice / 100, 2) AS skuStorePrice, ROUND(skuCostPrice / 100, 2) AS skuCostPrice, 
+    promotionType, skuTaxRate, promotionId, outSkuId, upc
+  </sql>
+  <select id="selectListByOrderId" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select
+    <include refid="Base_Column_List" />
+    from b_jddj_order_product
+    where orderId = #{orderId,jdbcType=BIGINT}
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from b_jddj_order_product
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  
+  <!-- 为商家端提供订单商品数据列表 -->
+  <select id="selectJdOrderProduct" resultType="com.linjia.web.model.ThirdOrderProduct" parameterType="java.lang.Long" >
+    SELECT bjop.id,bjop.orderId,bjop.skuIdIsv AS pCode,bjop.skuName AS pName,bjop.skuCount AS quantity,ROUND(bjop.skuJdPrice / 100, 2) AS itemPrice,CONCAT('${@com.linjia.constants.Application@SERVER_BASE_PATH}',bp.image_path)
+		AS imagePath 
+	FROM `b_jddj_order_product` bjop LEFT JOIN b_product bp ON bjop.skuIdIsv = bp.p_code
+	where bjop.orderId = #{orderId,jdbcType=BIGINT}
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from b_jddj_order_product
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.linjia.web.thirdService.jddj.model.OrderProductDTO" >
+    insert into b_jddj_order_product (id, orderId, adjustId, 
+      skuId, skuName, skuIdIsv, 
+      skuSpuId, skuJdPrice, skuCount, 
+      isGift, adjustMode, upcCode, 
+      artificerId, artificerName, skuStorePrice, 
+      skuCostPrice, promotionType, skuTaxRate, 
+      promotionId)
+    values (#{id,jdbcType=INTEGER}, #{orderId,jdbcType=BIGINT}, #{adjustId,jdbcType=BIGINT}, 
+      #{skuId,jdbcType=INTEGER}, #{skuName,jdbcType=VARCHAR}, #{skuIdIsv,jdbcType=VARCHAR}, 
+      #{skuSpuId,jdbcType=BIGINT}, #{skuJdPrice,jdbcType=BIGINT}, #{skuCount,jdbcType=INTEGER}, 
+      #{isGift,jdbcType=BIT}, #{adjustMode,jdbcType=INTEGER}, #{upcCode,jdbcType=VARCHAR}, 
+      #{artificerId,jdbcType=INTEGER}, #{artificerName,jdbcType=VARCHAR}, #{skuStorePrice,jdbcType=BIGINT}, 
+      #{skuCostPrice,jdbcType=BIGINT}, #{promotionType,jdbcType=INTEGER}, #{skuTaxRate,jdbcType=VARCHAR}, 
+      #{promotionId,jdbcType=BIGINT})
+  </insert>
+  
+  <!-- 批量插入订单商品数据 -->
+  <insert id="insertBatch" parameterType="map" >
+    insert into b_jddj_order_product (orderId, adjustId, 
+      skuId, skuName, skuIdIsv, 
+      skuSpuId, skuJdPrice, skuCount, 
+      isGift, adjustMode, upcCode, 
+      artificerId, artificerName, skuStorePrice, 
+      skuCostPrice, promotionType, skuTaxRate, 
+      promotionId,canteenMoney)
+    values 
+    <foreach collection="list" item="item" separator="," index="index">
+    (
+    #{orderId,jdbcType=BIGINT}, 
+    #{adjustId,jdbcType=BIGINT}, 
+    #{item.skuId,jdbcType=BIGINT}, 
+    #{item.skuName,jdbcType=VARCHAR}, 
+    #{item.skuIdIsv,jdbcType=VARCHAR}, 
+    #{item.skuSpuId,jdbcType=BIGINT}, 
+    #{item.skuJdPrice,jdbcType=BIGINT}, 
+    #{item.skuCount,jdbcType=INTEGER}, 
+    #{item.isGift,jdbcType=BIT}, 
+    #{item.adjustMode,jdbcType=INTEGER}, 
+    #{item.upcCode,jdbcType=VARCHAR}, 
+    #{item.artificerId,jdbcType=INTEGER}, 
+    #{item.artificerName,jdbcType=VARCHAR}, 
+    #{item.skuStorePrice,jdbcType=BIGINT}, 
+    #{item.skuCostPrice,jdbcType=BIGINT}, 
+    #{item.promotionType,jdbcType=INTEGER}, 
+    #{item.skuTaxRate,jdbcType=VARCHAR}, 
+    #{item.promotionId,jdbcType=BIGINT},
+    #{item.canteenMoney,jdbcType=BIGINT}
+    )
+    </foreach>
+  </insert>
+  <select id="countByExample" parameterType="com.linjia.web.thirdService.jddj.model.OrderProductDTO" resultType="java.lang.Integer" >
+    select count(*) from b_jddj_order_product
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update b_jddj_order_product
+    <set >
+      <if test="id != null" >
+        id = #{id,jdbcType=INTEGER},
+      </if>
+      <if test="orderId != null" >
+        orderId = #{orderId,jdbcType=BIGINT},
+      </if>
+      <if test="adjustId != null" >
+        adjustId = #{adjustId,jdbcType=BIGINT},
+      </if>
+      <if test="skuId != null" >
+        skuId = #{skuId,jdbcType=INTEGER},
+      </if>
+      <if test="skuName != null" >
+        skuName = #{skuName,jdbcType=VARCHAR},
+      </if>
+      <if test="skuIdIsv != null" >
+        skuIdIsv = #{skuIdIsv,jdbcType=VARCHAR},
+      </if>
+      <if test="skuSpuId != null" >
+        skuSpuId = #{skuSpuId,jdbcType=BIGINT},
+      </if>
+      <if test="skuJdPrice != null" >
+        skuJdPrice = #{skuJdPrice,jdbcType=BIGINT},
+      </if>
+      <if test="skuCount != null" >
+        skuCount = #{skuCount,jdbcType=INTEGER},
+      </if>
+      <if test="isGift != null" >
+        isGift = #{isGift,jdbcType=BIT},
+      </if>
+      <if test="adjustMode != null" >
+        adjustMode = #{adjustMode,jdbcType=INTEGER},
+      </if>
+      <if test="upcCode != null" >
+        upcCode = #{upcCode,jdbcType=VARCHAR},
+      </if>
+      <if test="artificerId != null" >
+        artificerId = #{artificerId,jdbcType=INTEGER},
+      </if>
+      <if test="artificerName != null" >
+        artificerName = #{artificerName,jdbcType=VARCHAR},
+      </if>
+      <if test="skuStorePrice != null" >
+        skuStorePrice = #{skuStorePrice,jdbcType=BIGINT},
+      </if>
+      <if test="skuCostPrice != null" >
+        skuCostPrice = #{skuCostPrice,jdbcType=BIGINT},
+      </if>
+      <if test="promotionType != null" >
+        promotionType = #{promotionType,jdbcType=INTEGER},
+      </if>
+      <if test="skuTaxRate != null" >
+        skuTaxRate = #{skuTaxRate,jdbcType=VARCHAR},
+      </if>
+      <if test="promotionId != null" >
+        promotionId = #{promotionId,jdbcType=BIGINT},
+      </if>
+      <if test="outSkuId != null" >
+        outSkuId = #{outSkuId,jdbcType=VARCHAR},
+      </if>
+      <if test="upc != null" >
+        upc = #{upc,jdbcType=VARCHAR},
+      </if>
+    </set>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update b_jddj_order_product
+    set id = #{id,jdbcType=INTEGER},
+      orderId = #{orderId,jdbcType=BIGINT},
+      adjustId = #{adjustId,jdbcType=BIGINT},
+      skuId = #{skuId,jdbcType=INTEGER},
+      skuName = #{skuName,jdbcType=VARCHAR},
+      skuIdIsv = #{skuIdIsv,jdbcType=VARCHAR},
+      skuSpuId = #{skuSpuId,jdbcType=BIGINT},
+      skuJdPrice = #{skuJdPrice,jdbcType=BIGINT},
+      skuCount = #{skuCount,jdbcType=INTEGER},
+      isGift = #{isGift,jdbcType=BIT},
+      adjustMode = #{adjustMode,jdbcType=INTEGER},
+      upcCode = #{upcCode,jdbcType=VARCHAR},
+      artificerId = #{artificerId,jdbcType=INTEGER},
+      artificerName = #{artificerName,jdbcType=VARCHAR},
+      skuStorePrice = #{skuStorePrice,jdbcType=BIGINT},
+      skuCostPrice = #{skuCostPrice,jdbcType=BIGINT},
+      promotionType = #{promotionType,jdbcType=INTEGER},
+      skuTaxRate = #{skuTaxRate,jdbcType=VARCHAR},
+      promotionId = #{promotionId,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.linjia.web.thirdService.jddj.model.OrderProductDTO" >
+    update b_jddj_order_product
+    <set >
+      <if test="orderId != null" >
+        orderId = #{orderId,jdbcType=BIGINT},
+      </if>
+      <if test="adjustId != null" >
+        adjustId = #{adjustId,jdbcType=BIGINT},
+      </if>
+      <if test="skuId != null" >
+        skuId = #{skuId,jdbcType=INTEGER},
+      </if>
+      <if test="skuName != null" >
+        skuName = #{skuName,jdbcType=VARCHAR},
+      </if>
+      <if test="skuIdIsv != null" >
+        skuIdIsv = #{skuIdIsv,jdbcType=VARCHAR},
+      </if>
+      <if test="skuSpuId != null" >
+        skuSpuId = #{skuSpuId,jdbcType=BIGINT},
+      </if>
+      <if test="skuJdPrice != null" >
+        skuJdPrice = #{skuJdPrice,jdbcType=BIGINT},
+      </if>
+      <if test="skuCount != null" >
+        skuCount = #{skuCount,jdbcType=INTEGER},
+      </if>
+      <if test="isGift != null" >
+        isGift = #{isGift,jdbcType=BIT},
+      </if>
+      <if test="adjustMode != null" >
+        adjustMode = #{adjustMode,jdbcType=INTEGER},
+      </if>
+      <if test="upcCode != null" >
+        upcCode = #{upcCode,jdbcType=VARCHAR},
+      </if>
+      <if test="artificerId != null" >
+        artificerId = #{artificerId,jdbcType=INTEGER},
+      </if>
+      <if test="artificerName != null" >
+        artificerName = #{artificerName,jdbcType=VARCHAR},
+      </if>
+      <if test="skuStorePrice != null" >
+        skuStorePrice = #{skuStorePrice,jdbcType=BIGINT},
+      </if>
+      <if test="skuCostPrice != null" >
+        skuCostPrice = #{skuCostPrice,jdbcType=BIGINT},
+      </if>
+      <if test="promotionType != null" >
+        promotionType = #{promotionType,jdbcType=INTEGER},
+      </if>
+      <if test="skuTaxRate != null" >
+        skuTaxRate = #{skuTaxRate,jdbcType=VARCHAR},
+      </if>
+      <if test="promotionId != null" >
+        promotionId = #{promotionId,jdbcType=BIGINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.linjia.web.thirdService.jddj.model.OrderProductDTO" >
+    update b_jddj_order_product
+    set orderId = #{orderId,jdbcType=BIGINT},
+      adjustId = #{adjustId,jdbcType=BIGINT},
+      skuId = #{skuId,jdbcType=INTEGER},
+      skuName = #{skuName,jdbcType=VARCHAR},
+      skuIdIsv = #{skuIdIsv,jdbcType=VARCHAR},
+      skuSpuId = #{skuSpuId,jdbcType=BIGINT},
+      skuJdPrice = #{skuJdPrice,jdbcType=BIGINT},
+      skuCount = #{skuCount,jdbcType=INTEGER},
+      isGift = #{isGift,jdbcType=BIT},
+      adjustMode = #{adjustMode,jdbcType=INTEGER},
+      upcCode = #{upcCode,jdbcType=VARCHAR},
+      artificerId = #{artificerId,jdbcType=INTEGER},
+      artificerName = #{artificerName,jdbcType=VARCHAR},
+      skuStorePrice = #{skuStorePrice,jdbcType=BIGINT},
+      skuCostPrice = #{skuCostPrice,jdbcType=BIGINT},
+      promotionType = #{promotionType,jdbcType=INTEGER},
+      skuTaxRate = #{skuTaxRate,jdbcType=VARCHAR},
+      promotionId = #{promotionId,jdbcType=BIGINT}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

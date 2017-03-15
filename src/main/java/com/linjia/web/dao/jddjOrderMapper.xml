@@ -1,0 +1,671 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.linjia.web.dao.JddjOrderMapper" >
+  <resultMap id="BaseResultMap" type="com.linjia.web.thirdService.jddj.model.OrderInfoDTO" >
+    <result column="orderId" property="orderId" jdbcType="BIGINT" />
+    <result column="srcOrderId" property="srcOrderId" jdbcType="VARCHAR" />
+    <result column="srcInnerOrderId" property="srcInnerOrderId" jdbcType="INTEGER" />
+    <result column="orderType" property="orderType" jdbcType="INTEGER" />
+    <result column="orderStatus" property="orderStatus" jdbcType="INTEGER" />
+    <result column="orderStatusTime" property="orderStatusTime" jdbcType="TIMESTAMP" />
+    <result column="orderStartTime" property="orderStartTime" jdbcType="TIMESTAMP" />
+    <result column="orderPurchaseTime" property="orderPurchaseTime" jdbcType="TIMESTAMP" />
+    <result column="orderAgingType" property="orderAgingType" jdbcType="INTEGER" />
+    <result column="orderPreStartDeliveryTime" property="orderPreStartDeliveryTime" jdbcType="TIMESTAMP" />
+    <result column="orderPreEndDeliveryTime" property="orderPreEndDeliveryTime" jdbcType="TIMESTAMP" />
+    <result column="orderCancelTime" property="orderCancelTime" jdbcType="TIMESTAMP" />
+    <result column="orderCancelRemark" property="orderCancelRemark" jdbcType="VARCHAR" />
+    <result column="orgCode" property="orgCode" jdbcType="VARCHAR" />
+    <result column="buyerFullName" property="buyerFullName" jdbcType="VARCHAR" />
+    <result column="buyerFullAddress" property="buyerFullAddress" jdbcType="VARCHAR" />
+    <result column="buyerTelephone" property="buyerTelephone" jdbcType="VARCHAR" />
+    <result column="buyerMobile" property="buyerMobile" jdbcType="VARCHAR" />
+    <result column="produceStationNo" property="produceStationNo" jdbcType="VARCHAR" />
+    <result column="produceStationName" property="produceStationName" jdbcType="VARCHAR" />
+    <result column="produceStationNoIsv" property="produceStationNoIsv" jdbcType="VARCHAR" />
+    <result column="deliveryStationNo" property="deliveryStationNo" jdbcType="VARCHAR" />
+    <result column="deliveryStationName" property="deliveryStationName" jdbcType="VARCHAR" />
+    <result column="deliveryCarrierNo" property="deliveryCarrierNo" jdbcType="VARCHAR" />
+    <result column="deliveryCarrierName" property="deliveryCarrierName" jdbcType="VARCHAR" />
+    <result column="deliveryBillNo" property="deliveryBillNo" jdbcType="VARCHAR" />
+    <result column="deliveryPackageWeight" property="deliveryPackageWeight" jdbcType="DOUBLE" />
+    <result column="deliveryConfirmTime" property="deliveryConfirmTime" jdbcType="TIMESTAMP" />
+    <result column="orderPayType" property="orderPayType" jdbcType="INTEGER" />
+    <result column="orderTotalMoney" property="orderTotalMoney" jdbcType="BIGINT" />
+    <result column="orderDiscountMoney" property="orderDiscountMoney" jdbcType="BIGINT" />
+    <result column="orderFreightMoney" property="orderFreightMoney" jdbcType="BIGINT" />
+    <result column="orderBuyerPayableMoney" property="orderBuyerPayableMoney" jdbcType="BIGINT" />
+    <result column="orderVenderChargeMoney" property="orderVenderChargeMoney" jdbcType="BIGINT" />
+    <result column="packagingMoney" property="packagingMoney" jdbcType="BIGINT" />
+    <result column="orderInvoiceOpenMark" property="orderInvoiceOpenMark" jdbcType="INTEGER" />
+    <result column="adjustIsExists" property="adjustIsExists" jdbcType="BIT" />
+    <result column="adjustId" property="adjustId" jdbcType="BIGINT" />
+    <result column="adjustCount" property="adjustCount" jdbcType="INTEGER" />
+    <result column="buyerCoordType" property="buyerCoordType" jdbcType="INTEGER" />
+    <result column="buyerLng" property="buyerLng" jdbcType="DOUBLE" />
+    <result column="buyerLat" property="buyerLat" jdbcType="DOUBLE" />
+    <result column="orderInvoiceType" property="orderInvoiceType" jdbcType="VARCHAR" />
+    <result column="orderInvoiceTitle" property="orderInvoiceTitle" jdbcType="VARCHAR" />
+    <result column="orderInvoiceContent" property="orderInvoiceContent" jdbcType="VARCHAR" />
+    <result column="orderBuyerRemark" property="orderBuyerRemark" jdbcType="VARCHAR" />
+    <result column="businessTag" property="businessTag" jdbcType="VARCHAR" />
+    <result column="equipmentId" property="equipmentId" jdbcType="VARCHAR" />
+    <result column="buyerPoi" property="buyerPoi" jdbcType="VARCHAR" />
+    <result column="businessTagId" property="businessTagId" jdbcType="VARCHAR" />
+    <result column="ordererName" property="ordererName" jdbcType="VARCHAR" />
+    <result column="ordererMobile" property="ordererMobile" jdbcType="VARCHAR" />
+    <result column="artificerPortraitUrl" property="artificerPortraitUrl" jdbcType="VARCHAR" />
+    <result column="detail" property="detail" jdbcType="VARCHAR" />
+    <result column="bus_confirm_time" property="busConfirmTime" jdbcType="TIMESTAMP" />
+    <result column="knight_pickup_time" property="knightPickupTime" jdbcType="TIMESTAMP" />
+    <result column="pickMark" property="pickMark" jdbcType="INTEGER" />
+    <result column="applyCancel" property="applyCancel" jdbcType="INTEGER" />
+    <result column="deliveryTime" property="deliveryTime" jdbcType="BIGINT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    orderId, srcOrderId, srcInnerOrderId, orderType, orderStatus, orderStatusTime, orderStartTime, 
+    orderPurchaseTime, orderAgingType, orderPreStartDeliveryTime, orderPreEndDeliveryTime, 
+    orderCancelTime, orderCancelRemark, orgCode, buyerFullName, buyerFullAddress, buyerTelephone, 
+    buyerMobile, produceStationNo, produceStationName, produceStationNoIsv, deliveryStationNo, 
+    deliveryStationName, deliveryCarrierNo, deliveryCarrierName, deliveryBillNo, deliveryPackageWeight, 
+    deliveryConfirmTime, orderPayType, orderTotalMoney, orderDiscountMoney, orderFreightMoney, 
+    (orderBuyerPayableMoney-packagingMoney) AS orderBuyerPayableMoney, orderVenderChargeMoney, packagingMoney, orderInvoiceOpenMark, adjustIsExists, adjustId, adjustCount,
+    buyerCoordType, buyerLng, buyerLat, orderInvoiceType, orderInvoiceTitle, orderInvoiceContent, 
+    orderBuyerRemark, businessTag, equipmentId, buyerPoi, businessTagId, ordererName, 
+    ordererMobile, artificerPortraitUrl, detail, knight_pickup_time, bus_confirm_time,pickMark,applyCancel,deliveryTime
+  </sql>
+  <sql id="Base_Column_List_1" >
+    bjo.orderId, srcOrderId, srcInnerOrderId, orderType, orderStatus, orderStatusTime, orderStartTime, 
+    orderPurchaseTime, orderAgingType, orderPreStartDeliveryTime, orderPreEndDeliveryTime, 
+    orderCancelTime, orderCancelRemark, orgCode, buyerFullName, buyerFullAddress, buyerTelephone, 
+    buyerMobile, produceStationNo, produceStationName, produceStationNoIsv, deliveryStationNo, 
+    deliveryStationName, bjo.deliveryCarrierNo, bjo.deliveryCarrierName, deliveryBillNo, deliveryPackageWeight, 
+    deliveryConfirmTime, orderPayType, orderTotalMoney, orderDiscountMoney, orderFreightMoney, 
+    (orderBuyerPayableMoney-packagingMoney) AS orderBuyerPayableMoney, orderVenderChargeMoney, packagingMoney, orderInvoiceOpenMark, adjustIsExists, adjustId, adjustCount,
+    buyerCoordType, buyerLng, buyerLat, orderInvoiceType, orderInvoiceTitle, orderInvoiceContent, 
+    orderBuyerRemark, businessTag, equipmentId, buyerPoi, businessTagId, ordererName, 
+    ordererMobile, artificerPortraitUrl, detail, knight_pickup_time, bus_confirm_time,bjds.deliveryManName,bjds.deliveryManPhone,bjo.pickMark,bjo.applyCancel,bjo.deliveryTime
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List_1" />
+    from b_jddj_order bjo left join b_jddj_delivery_status bjds on bjo.orderId = bjds.orderId AND bjds.deliveryStatus not in (10,80) 
+    where bjo.orderId = #{orderId,jdbcType=BIGINT}
+    ORDER BY bjds.deliveryStatusTime DESC LIMIT 1
+  </select>
+  
+  <!-- 查询订单状态 -->
+  <select id="selectOrderStatusByOrderId" resultType="java.lang.Integer" parameterType="java.lang.Long" >
+    select 
+    orderStatus
+    from b_jddj_order
+    where orderId = #{orderId,jdbcType=BIGINT}
+  </select>
+  
+  <delete id="deleteByExample" parameterType="com.linjia.web.thirdService.jddj.model.OrderInfoDTO" >
+    delete from b_jddj_order
+  </delete>
+  
+  <insert id="insertSelective" parameterType="com.linjia.web.thirdService.jddj.model.OrderInfoDTO" >
+    insert into b_jddj_order
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="orderId != null" >
+        orderId,
+      </if>
+      <if test="srcOrderId != null" >
+        srcOrderId,
+      </if>
+      <if test="srcInnerOrderId != null" >
+        srcInnerOrderId,
+      </if>
+      <if test="orderType != null" >
+        orderType,
+      </if>
+      <if test="orderStatus != null" >
+        orderStatus,
+      </if>
+      <if test="orderStatusTime != null" >
+        orderStatusTime,
+      </if>
+      <if test="orderStartTime != null" >
+        orderStartTime,
+      </if>
+      <if test="orderPurchaseTime != null" >
+        orderPurchaseTime,
+      </if>
+      <if test="orderAgingType != null" >
+        orderAgingType,
+      </if>
+      <if test="orderPreStartDeliveryTime != null" >
+        orderPreStartDeliveryTime,
+      </if>
+      <if test="orderPreEndDeliveryTime != null" >
+        orderPreEndDeliveryTime,
+      </if>
+      <if test="orderCancelTime != null" >
+        orderCancelTime,
+      </if>
+      <if test="orderCancelRemark != null" >
+        orderCancelRemark,
+      </if>
+      <if test="orgCode != null" >
+        orgCode,
+      </if>
+      <if test="buyerFullName != null" >
+        buyerFullName,
+      </if>
+      <if test="buyerFullAddress != null" >
+        buyerFullAddress,
+      </if>
+      <if test="buyerTelephone != null" >
+        buyerTelephone,
+      </if>
+      <if test="buyerMobile != null" >
+        buyerMobile,
+      </if>
+      <if test="produceStationNo != null" >
+        produceStationNo,
+      </if>
+      <if test="produceStationName != null" >
+        produceStationName,
+      </if>
+      <if test="produceStationNoIsv != null" >
+        produceStationNoIsv,
+      </if>
+      <if test="deliveryStationNo != null" >
+        deliveryStationNo,
+      </if>
+      <if test="deliveryStationName != null" >
+        deliveryStationName,
+      </if>
+      <if test="deliveryCarrierNo != null" >
+        deliveryCarrierNo,
+      </if>
+      <if test="deliveryCarrierName != null" >
+        deliveryCarrierName,
+      </if>
+      <if test="deliveryBillNo != null" >
+        deliveryBillNo,
+      </if>
+      <if test="deliveryPackageWeight != null" >
+        deliveryPackageWeight,
+      </if>
+      <if test="deliveryConfirmTime != null" >
+        deliveryConfirmTime,
+      </if>
+      <if test="orderPayType != null" >
+        orderPayType,
+      </if>
+      <if test="orderTotalMoney != null" >
+        orderTotalMoney,
+      </if>
+      <if test="orderDiscountMoney != null" >
+        orderDiscountMoney,
+      </if>
+      <if test="orderFreightMoney != null" >
+        orderFreightMoney,
+      </if>
+      <if test="orderBuyerPayableMoney != null" >
+        orderBuyerPayableMoney,
+      </if>
+      <if test="packagingMoney != null" >
+        packagingMoney,
+      </if>
+      <if test="orderInvoiceOpenMark != null" >
+        orderInvoiceOpenMark,
+      </if>
+      <if test="adjustIsExists != null" >
+        adjustIsExists,
+      </if>
+      <if test="adjustId != null" >
+        adjustId,
+      </if>
+      <if test="adjustCount != null" >
+        adjustCount,
+      </if>
+      <if test="buyerCoordType != null" >
+        buyerCoordType,
+      </if>
+      <if test="buyerLng != null" >
+        buyerLng,
+      </if>
+      <if test="buyerLat != null" >
+        buyerLat,
+      </if>
+      <if test="orderInvoiceType != null" >
+        orderInvoiceType,
+      </if>
+      <if test="orderInvoiceTitle != null" >
+        orderInvoiceTitle,
+      </if>
+      <if test="orderInvoiceContent != null" >
+        orderInvoiceContent,
+      </if>
+      <if test="orderBuyerRemark != null" >
+        orderBuyerRemark,
+      </if>
+      <if test="businessTag != null" >
+        businessTag,
+      </if>
+      <if test="equipmentId != null" >
+        equipmentId,
+      </if>
+      <if test="buyerPoi != null" >
+        buyerPoi,
+      </if>
+      <if test="businessTagId != null" >
+        businessTagId,
+      </if>
+      <if test="ordererName != null" >
+        ordererName,
+      </if>
+      <if test="ordererMobile != null" >
+        ordererMobile,
+      </if>
+      <if test="artificerPortraitUrl != null" >
+        artificerPortraitUrl,
+      </if>
+      <if test="detail != null" >
+        detail,
+      </if>
+      <if test="deliveryTime != null" >
+        deliveryTime,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="orderId != null" >
+        #{orderId,jdbcType=BIGINT},
+      </if>
+      <if test="srcOrderId != null" >
+        #{srcOrderId,jdbcType=VARCHAR},
+      </if>
+      <if test="srcInnerOrderId != null" >
+        #{srcInnerOrderId,jdbcType=INTEGER},
+      </if>
+      <if test="orderType != null" >
+        #{orderType,jdbcType=INTEGER},
+      </if>
+      <if test="orderStatus != null" >
+        #{orderStatus,jdbcType=INTEGER},
+      </if>
+      <if test="orderStatusTime != null" >
+        #{orderStatusTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="orderStartTime != null" >
+        #{orderStartTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="orderPurchaseTime != null" >
+        #{orderPurchaseTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="orderAgingType != null" >
+        #{orderAgingType,jdbcType=INTEGER},
+      </if>
+      <if test="orderPreStartDeliveryTime != null" >
+        #{orderPreStartDeliveryTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="orderPreEndDeliveryTime != null" >
+        #{orderPreEndDeliveryTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="orderCancelTime != null" >
+        #{orderCancelTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="orderCancelRemark != null" >
+        #{orderCancelRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="orgCode != null" >
+        #{orgCode,jdbcType=VARCHAR},
+      </if>
+      <if test="buyerFullName != null" >
+        #{buyerFullName,jdbcType=VARCHAR},
+      </if>
+      <if test="buyerFullAddress != null" >
+        #{buyerFullAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="buyerTelephone != null" >
+        #{buyerTelephone,jdbcType=VARCHAR},
+      </if>
+      <if test="buyerMobile != null" >
+        #{buyerMobile,jdbcType=VARCHAR},
+      </if>
+      <if test="produceStationNo != null" >
+        #{produceStationNo,jdbcType=VARCHAR},
+      </if>
+      <if test="produceStationName != null" >
+        #{produceStationName,jdbcType=VARCHAR},
+      </if>
+      <if test="produceStationNoIsv != null" >
+        #{produceStationNoIsv,jdbcType=VARCHAR},
+      </if>
+      <if test="deliveryStationNo != null" >
+        #{deliveryStationNo,jdbcType=VARCHAR},
+      </if>
+      <if test="deliveryStationName != null" >
+        #{deliveryStationName,jdbcType=VARCHAR},
+      </if>
+      <if test="deliveryCarrierNo != null" >
+        #{deliveryCarrierNo,jdbcType=VARCHAR},
+      </if>
+      <if test="deliveryCarrierName != null" >
+        #{deliveryCarrierName,jdbcType=VARCHAR},
+      </if>
+      <if test="deliveryBillNo != null" >
+        #{deliveryBillNo,jdbcType=VARCHAR},
+      </if>
+      <if test="deliveryPackageWeight != null" >
+        #{deliveryPackageWeight,jdbcType=DOUBLE},
+      </if>
+      <if test="deliveryConfirmTime != null" >
+        #{deliveryConfirmTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="orderPayType != null" >
+        #{orderPayType,jdbcType=INTEGER},
+      </if>
+      <if test="orderTotalMoney != null" >
+        #{orderTotalMoney,jdbcType=BIGINT},
+      </if>
+      <if test="orderDiscountMoney != null" >
+        #{orderDiscountMoney,jdbcType=BIGINT},
+      </if>
+      <if test="orderFreightMoney != null" >
+        #{orderFreightMoney,jdbcType=BIGINT},
+      </if>
+      <if test="orderBuyerPayableMoney != null" >
+        #{orderBuyerPayableMoney,jdbcType=BIGINT},
+      </if>
+      <if test="packagingMoney != null" >
+        #{packagingMoney,jdbcType=BIGINT},
+      </if>
+      <if test="orderInvoiceOpenMark != null" >
+        #{orderInvoiceOpenMark,jdbcType=INTEGER},
+      </if>
+      <if test="adjustIsExists != null" >
+        #{adjustIsExists,jdbcType=BIT},
+      </if>
+      <if test="adjustId != null" >
+        #{adjustId,jdbcType=BIGINT},
+      </if>
+      <if test="adjustCount != null" >
+        #{adjustCount,jdbcType=INTEGER},
+      </if>
+      <if test="buyerCoordType != null" >
+        #{buyerCoordType,jdbcType=INTEGER},
+      </if>
+      <if test="buyerLng != null" >
+        #{buyerLng,jdbcType=DOUBLE},
+      </if>
+      <if test="buyerLat != null" >
+        #{buyerLat,jdbcType=DOUBLE},
+      </if>
+      <if test="orderInvoiceType != null" >
+        #{orderInvoiceType,jdbcType=VARCHAR},
+      </if>
+      <if test="orderInvoiceTitle != null" >
+        #{orderInvoiceTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="orderInvoiceContent != null" >
+        #{orderInvoiceContent,jdbcType=VARCHAR},
+      </if>
+      <if test="orderBuyerRemark != null" >
+        #{orderBuyerRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="businessTag != null" >
+        #{businessTag,jdbcType=VARCHAR},
+      </if>
+      <if test="equipmentId != null" >
+        #{equipmentId,jdbcType=VARCHAR},
+      </if>
+      <if test="buyerPoi != null" >
+        #{buyerPoi,jdbcType=VARCHAR},
+      </if>
+      <if test="businessTagId != null" >
+        #{businessTagId,jdbcType=VARCHAR},
+      </if>
+      <if test="ordererName != null" >
+        #{ordererName,jdbcType=VARCHAR},
+      </if>
+      <if test="ordererMobile != null" >
+        #{ordererMobile,jdbcType=VARCHAR},
+      </if>
+      <if test="artificerPortraitUrl != null" >
+        #{artificerPortraitUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="detail != null" >
+        #{detail,jdbcType=VARCHAR},
+      </if>
+      <if test="deliveryTime != null" >
+        #{deliveryTime,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+ 
+  <!-- 查询订单是否存在 -->
+  <select id="countByOrderId" parameterType="java.lang.Long" resultType="java.lang.Integer" >
+    select count(*) from b_jddj_order where orderId = #{orderId,jdbcType=BIGINT}
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update b_jddj_order
+    <set >
+      <if test="orderId != null" >
+        orderId = #{orderId,jdbcType=BIGINT},
+      </if>
+      <if test="srcOrderId != null" >
+        srcOrderId = #{srcOrderId,jdbcType=VARCHAR},
+      </if>
+      <if test="srcInnerOrderId != null" >
+        srcInnerOrderId = #{srcInnerOrderId,jdbcType=INTEGER},
+      </if>
+      <if test="orderType != null" >
+        orderType = #{orderType,jdbcType=INTEGER},
+      </if>
+      <if test="orderStatus != null" >
+        orderStatus = #{orderStatus,jdbcType=INTEGER},
+      </if>
+      <if test="orderStatusTime != null" >
+        orderStatusTime = #{orderStatusTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="orderStartTime != null" >
+        orderStartTime = #{orderStartTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="orderPurchaseTime != null" >
+        orderPurchaseTime = #{orderPurchaseTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="orderAgingType != null" >
+        orderAgingType = #{orderAgingType,jdbcType=INTEGER},
+      </if>
+      <if test="orderPreStartDeliveryTime != null" >
+        orderPreStartDeliveryTime = #{orderPreStartDeliveryTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="orderPreEndDeliveryTime != null" >
+        orderPreEndDeliveryTime = #{orderPreEndDeliveryTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="orderCancelTime != null" >
+        orderCancelTime = #{orderCancelTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="orderCancelRemark != null" >
+        orderCancelRemark = #{orderCancelRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="orgCode != null" >
+        orgCode = #{orgCode,jdbcType=VARCHAR},
+      </if>
+      <if test="buyerFullName != null" >
+        buyerFullName = #{buyerFullName,jdbcType=VARCHAR},
+      </if>
+      <if test="buyerFullAddress != null" >
+        buyerFullAddress = #{buyerFullAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="buyerTelephone != null" >
+        buyerTelephone = #{buyerTelephone,jdbcType=VARCHAR},
+      </if>
+      <if test="buyerMobile != null" >
+        buyerMobile = #{buyerMobile,jdbcType=VARCHAR},
+      </if>
+      <if test="produceStationNo != null" >
+        produceStationNo = #{produceStationNo,jdbcType=VARCHAR},
+      </if>
+      <if test="produceStationName != null" >
+        produceStationName = #{produceStationName,jdbcType=VARCHAR},
+      </if>
+      <if test="produceStationNoIsv != null" >
+        produceStationNoIsv = #{produceStationNoIsv,jdbcType=VARCHAR},
+      </if>
+      <if test="deliveryStationNo != null" >
+        deliveryStationNo = #{deliveryStationNo,jdbcType=VARCHAR},
+      </if>
+      <if test="deliveryStationName != null" >
+        deliveryStationName = #{deliveryStationName,jdbcType=VARCHAR},
+      </if>
+      <if test="deliveryCarrierNo != null" >
+        deliveryCarrierNo = #{deliveryCarrierNo,jdbcType=VARCHAR},
+      </if>
+      <if test="deliveryCarrierName != null" >
+        deliveryCarrierName = #{deliveryCarrierName,jdbcType=VARCHAR},
+      </if>
+      <if test="deliveryBillNo != null" >
+        deliveryBillNo = #{deliveryBillNo,jdbcType=VARCHAR},
+      </if>
+      <if test="deliveryPackageWeight != null" >
+        deliveryPackageWeight = #{deliveryPackageWeight,jdbcType=DOUBLE},
+      </if>
+      <if test="deliveryConfirmTime != null" >
+        deliveryConfirmTime = #{deliveryConfirmTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="orderPayType != null" >
+        orderPayType = #{orderPayType,jdbcType=INTEGER},
+      </if>
+      <if test="orderTotalMoney != null" >
+        orderTotalMoney = #{orderTotalMoney,jdbcType=BIGINT},
+      </if>
+      <if test="orderDiscountMoney != null" >
+        orderDiscountMoney = #{orderDiscountMoney,jdbcType=BIGINT},
+      </if>
+      <if test="orderFreightMoney != null" >
+        orderFreightMoney = #{orderFreightMoney,jdbcType=BIGINT},
+      </if>
+      <if test="orderBuyerPayableMoney != null" >
+        orderBuyerPayableMoney = #{orderBuyerPayableMoney,jdbcType=BIGINT},
+      </if>
+      <if test="orderVenderChargeMoney != null" >
+        orderVenderChargeMoney = #{orderVenderChargeMoney,jdbcType=BIGINT},
+      </if>
+      <if test="packagingMoney != null" >
+        packagingMoney = #{packagingMoney,jdbcType=BIGINT},
+      </if>
+      <if test="orderInvoiceOpenMark != null" >
+        orderInvoiceOpenMark = #{orderInvoiceOpenMark,jdbcType=INTEGER},
+      </if>
+      <if test="adjustIsExists != null" >
+        adjustIsExists = #{adjustIsExists,jdbcType=BIT},
+      </if>
+      <if test="adjustId != null" >
+        adjustId = #{adjustId,jdbcType=BIGINT},
+      </if>
+      <if test="adjustCount != null" >
+        adjustCount = #{adjustCount,jdbcType=INTEGER},
+      </if>
+      <if test="buyerCoordType != null" >
+        buyerCoordType = #{buyerCoordType,jdbcType=INTEGER},
+      </if>
+      <if test="buyerLng != null" >
+        buyerLng = #{buyerLng,jdbcType=DOUBLE},
+      </if>
+      <if test="buyerLat != null" >
+        buyerLat = #{buyerLat,jdbcType=DOUBLE},
+      </if>
+      <if test="orderInvoiceType != null" >
+        orderInvoiceType = #{orderInvoiceType,jdbcType=VARCHAR},
+      </if>
+      <if test="orderInvoiceTitle != null" >
+        orderInvoiceTitle = #{orderInvoiceTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="orderInvoiceContent != null" >
+        orderInvoiceContent = #{orderInvoiceContent,jdbcType=VARCHAR},
+      </if>
+      <if test="orderBuyerRemark != null" >
+        orderBuyerRemark = #{orderBuyerRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="businessTag != null" >
+        businessTag = #{businessTag,jdbcType=VARCHAR},
+      </if>
+      <if test="equipmentId != null" >
+        equipmentId = #{equipmentId,jdbcType=VARCHAR},
+      </if>
+      <if test="buyerPoi != null" >
+        buyerPoi = #{buyerPoi,jdbcType=VARCHAR},
+      </if>
+      <if test="businessTagId != null" >
+        businessTagId = #{businessTagId,jdbcType=VARCHAR},
+      </if>
+      <if test="ordererName != null" >
+        ordererName = #{ordererName,jdbcType=VARCHAR},
+      </if>
+      <if test="ordererMobile != null" >
+        ordererMobile = #{ordererMobile,jdbcType=VARCHAR},
+      </if>
+      <if test="artificerPortraitUrl != null" >
+        artificerPortraitUrl = #{artificerPortraitUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="detail != null" >
+        detail = #{detail,jdbcType=VARCHAR},
+      </if>
+    </set>
+  </update>
+  
+  <!-- 更新调整单信息 -->
+  <update id="updateAdjustOrderInfo" parameterType="map" >
+    update b_jddj_order
+    set 
+      produceStationNo = #{produceStationNo,jdbcType=VARCHAR},
+      orderTotalMoney = #{orderTotalMoney,jdbcType=BIGINT},
+      orderDiscountMoney = #{orderDiscountMoney,jdbcType=BIGINT},
+      orderFreightMoney = #{orderFreightMoney,jdbcType=BIGINT},
+      orderBuyerPayableMoney = #{orderBuyerPayableMoney,jdbcType=BIGINT},
+      orderVenderChargeMoney = #{orderVenderChargeMoney,jdbcType=BIGINT},
+      adjustIsExists = #{adjustIsExists,jdbcType=BIT},
+      adjustId = #{adjustId,jdbcType=BIGINT},
+      adjustCount = #{adjustCount,jdbcType=INTEGER}
+      where orderId = #{orderId,jdbcType=BIGINT}
+  </update>
+  
+  <update id="updateByPrimaryKey" parameterType="map" >
+    update b_jddj_order
+    set 
+      <if test="orderPreStartDeliveryTime != null" >
+        orderPreStartDeliveryTime = #{orderPreStartDeliveryTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="orderPreEndDeliveryTime != null" >
+        orderPreEndDeliveryTime = #{orderPreEndDeliveryTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="orderCancelTime != null" >
+        orderCancelTime = #{orderCancelTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="orderCancelRemark != null" >
+        orderCancelRemark = #{orderCancelRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="orderCancelRemark != null" >
+        orderCancelRemark = #{orderCancelRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="deliveryConfirmTime != null" >
+        deliveryConfirmTime = #{deliveryConfirmTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="busConfirmTime != null" >
+        bus_confirm_time = #{busConfirmTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="orderNum != null" >
+        orderNum = #{orderNum,jdbcType=INTEGER},
+      </if>
+      <if test="pickMark != null" >
+        pickMark = #{pickMark,jdbcType=INTEGER},
+      </if>
+      <if test="applyCancel != null" >
+        applyCancel = #{applyCancel,jdbcType=INTEGER},
+      </if>
+      <if test="knightPickupTime != null" >
+        knight_pickup_time = #{knightPickupTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="orderStatus != null" >
+      	orderStatus = #{orderStatus,jdbcType=INTEGER},
+      </if>
+      orderStatusTime = #{orderStatusTime,jdbcType=TIMESTAMP}
+    where orderId = #{orderId,jdbcType=BIGINT}
+  </update>
+</mapper>

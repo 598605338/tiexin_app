@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.linjia.web.dao.HotsellProductMapper" >
+  <resultMap id="BaseResultMap" type="com.linjia.web.model.HotsellProduct" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="base_id" property="baseId" jdbcType="INTEGER" />
+    <result column="product_id" property="productId" jdbcType="INTEGER" />
+    <result column="p_code" property="pCode" jdbcType="VARCHAR" />
+    <result column="p_name" property="pName" jdbcType="VARCHAR" />
+    <result column="p_price" property="pPrice" jdbcType="DECIMAL" />
+    <result column="sale_price" property="salePrice" jdbcType="DECIMAL" />
+    <result column="market_price" property="marketPrice" jdbcType="DECIMAL" />
+    <result column="discount" property="discount" jdbcType="DOUBLE" />
+    <result column="image_path" property="imagePath" jdbcType="VARCHAR" />
+    <result column="detail_path" property="detailPath" jdbcType="VARCHAR" />
+    <result column="promotion_label" property="promotionLabel" jdbcType="VARCHAR" />
+    <result column="p_send_type" property="pSendType" jdbcType="TINYINT" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    bp.id, bp.base_id, bp.product_id, bp.p_code, bp.p_name, bp.p_price, bp.p_send_type, bp.create_time, bp.update_time,CONCAT('${@com.linjia.constants.Application@SERVER_BASE_PATH}',bpr.image_path) AS image_path,bpr.detail_path,IF(baip.discount IS NOT NULL AND baip.discount !=0,ROUND(baip.discount*bpr.market_price,2),bmps.sale_price) AS sale_price, bpr.market_price, baip.discount,baip.promotion_label,<![CDATA[IFNULL(IF (bmpsq.quantity < 1 OR bmpsq.quantity IS NULL,0,p_sale_num.saleNum),0) AS saleNum]]>
+  </sql>
+  <select id="selectByBaseId" resultMap="BaseResultMap" parameterType="com.linjia.web.query.HotsellProductQuery" >
+    select
+    <include refid="Base_Column_List" />
+    from b_hotsell_product bp inner join b_mall_product_store bmps on bp.p_code = bmps.p_code
+    inner join b_product bpr on bp.p_code = bpr.p_code
+    <!-- 查询商品活动(部分商品)折扣价 -->
+    LEFT JOIN (SELECT bap.product_id , bap.p_code, CASE activity_type WHEN 2 THEN bai.discount ELSE 0 END AS discount, bai.promotion_label FROM b_activity_product bap INNER JOIN b_activity_info bai ON bap.activity_id = bai.activity_id WHERE bai.status = 1 AND bai.selector_goods =1  
+    <![CDATA[AND bai.start_time <= now() AND bai.end_time >= now() ]]>
+	AND (bai.mall_codes IS NULL OR FIND_IN_SET(#{mallCode,jdbcType=VARCHAR},mall_codes)) GROUP BY bap.product_id ORDER BY bai.discount ) baip ON bp.p_code = baip.p_code
+	
+	<!--查询月销量  -->
+    LEFT JOIN ( SELECT count(bogp.id) AS saleNum, bogp.product_id FROM b_order_group_product bogp
+    INNER JOIN b_order_group bog ON bogp.group_id = bog.id AND DATE_FORMAT(bog.cre_date, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m') 
+    GROUP BY bogp.product_id
+    ) p_sale_num ON p_sale_num.product_id = bp.product_id
+    LEFT JOIN b_mall_product_send_qty bmpsq ON bmpsq.p_code = bp.p_code AND bmpsq.mall_code = #{mallCode,jdbcType=VARCHAR}
+    where bp.base_id=#{baseId,jdbcType=INTEGER}
+    AND bmps.online = 1
+    AND bmps.mall_code = #{mallCode,jdbcType=VARCHAR}
+    GROUP BY bp.p_code
+    ORDER BY saleNum desc,bmpsq.quantity DESC,bp.product_id desc
+    LIMIT #{startIndex},#{pageSize}
+  </select>
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from b_hotsell_product
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  
+</mapper>
