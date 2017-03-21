@@ -55,7 +55,7 @@ public class Application {
 	public final static String BD_SOURCE_NAME = "邻里家";
 	
 	//饿了么邻家APPID
-	public final static int ELEME_APPID = 84496616;
+	public final static int ELEME_APPID = 0;
 	
 	public static int order_pdNum=0;
 
