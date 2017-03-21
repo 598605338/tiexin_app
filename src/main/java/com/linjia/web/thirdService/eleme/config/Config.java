@@ -55,7 +55,7 @@ public class Config {
 
     public static String getServerUrl() {
         if (serverUrl == null) {
-            return sandbox ? "https://open-api-sandbox.shop.ele.me" : "https://open-api.shop.ele.me";
+            return sandbox ? "" : "";
         }
         return serverUrl;
     }

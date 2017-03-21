@@ -7,7 +7,7 @@ public class DaDaLogisticsConfig {
 	 //开放平台分配的测试key值
 //    public final static String APP_KEY = "dada9fd5737ef7a76da1";
 	//正式环境key
-	public final static String APP_KEY = "dada9e693672e5b6922b";
+	public final static String APP_KEY = "";
     
     private static String urlPrefix = "";
 
@@ -20,15 +20,15 @@ public class DaDaLogisticsConfig {
    //申请的access_token的授权码,有效时间为15分钟
    public static int GRANTCODE = 0;
    //access_token的有效时间,单位为秒，默认7天有效期（604800秒） expires_in
-   public static String ACCESSTOKEN = "9621817b1d9c79f079003a6ebc424fa8";
+   public static String ACCESSTOKEN = "";
    //refresh_token access_token过期情况下，用来刷新access_token值,一般30天的有效期
    public static String REFRESHTOKEN="";
    
    //授权grant_type
-   public static String GRANTTYPE="authorization_code";
+   public static String GRANTTYPE="";
    
    //刷新grant_type
-   public static String REGRANTTYPE="refresh_token";
+   public static String REGRANTTYPE="";
    
    //scope
    public static String SCOPE="dada_base";

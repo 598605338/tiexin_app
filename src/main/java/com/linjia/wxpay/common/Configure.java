@@ -32,7 +32,7 @@ public class Configure {
     private static String mchID = "";
 
     // HTTPS证书的本地路径
-    private static String certLocalPath = "/mnt/Users/wx/test/cert/apiclient_cert.p12";
+    private static String certLocalPath = "/mnt/Users/wx/test/apiclient_cert.p12";
 
     // HTTPS证书密码，默认密码等于商户号MCHID
     private static String TEST_certPassword = "";

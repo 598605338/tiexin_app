@@ -31,8 +31,8 @@ import java.util.List;
 public class JPushPushClient implements PushClient {
 
     private Logger logger = Logger.getLogger(JPushPushClient.class);
-    private static final String APP_KEY= Configuration.genApiKey("jpush_app_key");
-    private static final String MASTER_SECRET=Configuration.genApiKey("jpush_master_secret");
+    private static final String APP_KEY= Configuration.genApiKey("");
+    private static final String MASTER_SECRET=Configuration.genApiKey("");
     private static final String MESSAGE_TITLE = "邻家便利店";
 
     private static JPushPushClient instance = new JPushPushClient();

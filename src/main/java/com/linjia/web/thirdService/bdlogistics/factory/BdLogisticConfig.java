@@ -22,8 +22,8 @@ public class BdLogisticConfig {
 		errorCodeMap = new HashMap<Integer, String>();
 		bdLogisCancelList = new ArrayList<Map<String,Object>>();
 		
-		appMap.put("app_id", "1000514");
-		appMap.put("app_key", "6a1773a04dcec14b1a5f3d26c9c5386a");
+		appMap.put("app_id", "");
+		appMap.put("app_key", "");
 		
 		// 接收第三方平台新订单 
 		urlMap.put("createOrder", "/api/createorder");
@@ -84,11 +84,11 @@ public class BdLogisticConfig {
 			if (urlPrefix.equals("")) {
 				String env = PropertiesUtil.getEnvironmentMode();
 				if ("0".equals(env)) {
-					urlPrefix = "http://182.61.30.232:8186";
+					urlPrefix = "http://.61.30.232:8186";
 				} else if ("1".equals(env)) {
 					urlPrefix = "http://wuliu.baidu.com";
 				} else if ("2".equals(env)) {
-					urlPrefix = "http://127.0.0.1:8080/api/v1";
+					urlPrefix = "http://.0.0.1:8080/api/v1";
 				}
 			}
 		 }catch (ApiSysException e) {

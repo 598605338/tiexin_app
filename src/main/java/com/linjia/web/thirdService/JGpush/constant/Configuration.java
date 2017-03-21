@@ -23,11 +23,11 @@ public class Configuration {
 		//向某单个设备或者某设备列表推送一条通知、或者消息。
 		apiMap.put("messagePush", "");
 		//该 API,只用于验证推送调用是否能够成功，与推送 API 的区别在于：不向用户发送任何消息。 其他字段说明：同推送 API。
-		apiMap.put("messageValidate", "https://api.jpush.cn/v3/push/validate");
+		apiMap.put("messageValidate", "");
 		//提供各类统计数据查询功能
-		apiMap.put("messageSum", "https://report.jpush.cn");
+		apiMap.put("messageSum", "");
 		//用于在服务器端查询、设置、更新、删除设备的 tag,alias 信息。
-		apiMap.put("tagsAndsAliasOpr", "https://device.jpush.cn");
+		apiMap.put("tagsAndsAliasOpr", "");
 
 		//查询设备(设备的别名与标签),获取当前设备的所有属性，包含tags, alias，手机号码mobile。
 		//GET /v3/devices/{registration_id}

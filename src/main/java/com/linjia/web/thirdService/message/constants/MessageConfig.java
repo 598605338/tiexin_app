@@ -2,9 +2,9 @@ package com.linjia.web.thirdService.message.constants;
 
 public class MessageConfig {
 
-	public static String USERNAME="xd001142";
+	public static String USERNAME="";
 	
-	public static String PWD="xd001142123";
+	public static String PWD="";
 	
 	public static String SIGN="【邻家便利】(邻家商城)";
 	

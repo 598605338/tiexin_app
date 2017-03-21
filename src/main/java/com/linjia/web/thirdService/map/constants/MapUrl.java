@@ -2,13 +2,13 @@ package com.linjia.web.thirdService.map.constants;
 
 public class MapUrl {
 
-//	public static String GeocodingAPI="http://api.map.baidu.com/geocoder/v2/?address=北京市西城区北礼士路在地图中查看甲98号1幢阜成大厦B座六层&output=json&ak=BG21Xi53lMAAc6qHbIG63kyGs9UBHHO6";
+//	public static String GeocodingAPI="http://api.map.baidu.com/geocoder/v2/?address=北京市西城区北礼士路在地图中查看甲98号1幢阜成大厦B座六层&output=json&ak=";
 
 	//地址转经纬度
 	public static String ADDRESSTOLNGLAT="http://api.map.baidu.com/geocoder/v2/";
 	//经纬度转地址
 	public static String LNGLATTOADDRESS="http://api.map.baidu.com/geocoder/v2/";
-//	http://api.map.baidu.com/geocoder/v2/?address=北京市西城区北礼士路在地图中查看甲98号1幢阜成大厦B座六层&output=json&ak=BG21Xi53lMAAc6qHbIG63kyGs9UBHHO6&sn=5cf3a827d2773e5caea91fcfb14e0abe
+//	http://api.map.baidu.com/geocoder/v2/?address=北京市西城区北礼士路在地图中查看甲98号1幢阜成大厦B座六层&output=json&ak=&sn=
 
 	//web端URI API
 	public static String MARKWEBURL="http://api.map.baidu.com/marker";
